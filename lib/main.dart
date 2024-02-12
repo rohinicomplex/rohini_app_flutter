@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'otp.dart';
+import 'approval.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,7 +14,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: OTPScreen(),
+      home: ApprovalScreen(),
     );
   }
 }

@@ -156,10 +156,11 @@ class _OTPScreenState extends State<OTPScreen> {
                 SizedBox(height: 20.0),
                 ElevatedButton(
                   onPressed: verifyOTP,
-                  child: Text(
-                    'Verify OTP',
-                    style: TextStyle(fontSize: 18.0), // Increase the font size
+                  style: ElevatedButton.styleFrom(
+                    primary: Theme.of(context).colorScheme.secondary,
+                    textStyle: TextStyle(fontSize: 18.0),
                   ),
+                  child: Text('Verify OTP'),
                 ),
                 SizedBox(height: 20.0),
                 Row(
@@ -170,7 +171,7 @@ class _OTPScreenState extends State<OTPScreen> {
                       style: TextStyle(fontSize: 16.0),
                     ),
                     SizedBox(width: 10.0),
-                    ElevatedButton(
+                    TextButton(
                       onPressed:
                           _isResendDisabled ? null : handleResendButtonPress,
                       child: Text('Resend'),
@@ -178,7 +179,7 @@ class _OTPScreenState extends State<OTPScreen> {
                   ],
                 ),
                 SizedBox(height: 20.0),
-                ElevatedButton(
+                TextButton(
                   onPressed: resetOTPEntry,
                   child: Text('Change Email/Phone Number'),
                 ),
