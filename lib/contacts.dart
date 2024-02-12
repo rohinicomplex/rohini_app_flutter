@@ -8,12 +8,26 @@ class ContactsScreen extends StatefulWidget {
 
 class _ContactsScreenState extends State<ContactsScreen> {
   List<Contact> _contacts = [
-    Contact(name: 'John Doe', phoneNumbers: ['1234567890', '9876543210']),
-    Contact(name: 'Jane Smith', phoneNumbers: ['1112223333']),
+    Contact(
+      name: 'John Doe',
+      phoneNumbers: [
+        PhoneNumber(number: '1234567890', type: PhoneType.mobile),
+        PhoneNumber(number: '9876543210', type: PhoneType.work),
+      ],
+    ),
+    Contact(
+      name: 'Jane Smith',
+      phoneNumbers: [
+        PhoneNumber(number: '1112223333', type: PhoneType.mobile),
+        PhoneNumber(
+            number: '4445556666', type: PhoneType.custom, label: 'Home'),
+      ],
+    ),
   ];
 
   TextEditingController _nameController = TextEditingController();
   TextEditingController _phoneNumberController = TextEditingController();
+  PhoneType _selectedPhoneType = PhoneType.mobile;
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +46,9 @@ class _ContactsScreenState extends State<ContactsScreen> {
                   .phoneNumbers
                   .map((phoneNumber) => GestureDetector(
                         onTap: () {
-                          _launchURL('tel:$phoneNumber');
+                          _launchURL(phoneNumber.number);
                         },
-                        child: Text(phoneNumber),
+                        child: Text(phoneNumber.toString()),
                       ))
                   .toList(),
             ),
@@ -44,13 +58,13 @@ class _ContactsScreenState extends State<ContactsScreen> {
                 IconButton(
                   icon: Icon(Icons.phone),
                   onPressed: () {
-                    _launchURL('tel:${_contacts[index].phoneNumbers.first}');
+                    _launchURL('tel:${_contacts[index].mobileNumber}');
                   },
                 ),
                 IconButton(
                   icon: Icon(Icons.message),
                   onPressed: () {
-                    _launchURL('sms:${_contacts[index].phoneNumbers.first}');
+                    _launchURL('sms:${_contacts[index].mobileNumber}');
                   },
                 ),
                 IconButton(
@@ -100,6 +114,20 @@ class _ContactsScreenState extends State<ContactsScreen> {
                   labelText: 'Phone Number',
                 ),
               ),
+              DropdownButtonFormField(
+                value: _selectedPhoneType,
+                items: PhoneType.values.map((type) {
+                  return DropdownMenuItem(
+                    value: type,
+                    child: Text(type.toString().split('.').last),
+                  );
+                }).toList(),
+                onChanged: (type) {
+                  setState(() {
+                    _selectedPhoneType = type as PhoneType;
+                  });
+                },
+              ),
             ],
           ),
           actions: <Widget>[
@@ -128,16 +156,25 @@ class _ContactsScreenState extends State<ContactsScreen> {
 
     if (name.isNotEmpty && phoneNumber.isNotEmpty) {
       setState(() {
-        _contacts.add(Contact(name: name, phoneNumbers: [phoneNumber]));
+        _contacts.add(
+          Contact(
+            name: name,
+            phoneNumbers: [
+              PhoneNumber(number: phoneNumber, type: _selectedPhoneType),
+            ],
+          ),
+        );
         _nameController.clear();
         _phoneNumberController.clear();
+        _selectedPhoneType = PhoneType.mobile; // Reset selected phone type
       });
     }
   }
 
   void _editContact(BuildContext context, int index) {
     _nameController.text = _contacts[index].name;
-    _phoneNumberController.text = _contacts[index].phoneNumbers.first;
+    _phoneNumberController.text = _contacts[index].mobileNumber;
+    _selectedPhoneType = _contacts[index].mobileNumberType;
 
     showDialog(
       context: context,
@@ -158,6 +195,20 @@ class _ContactsScreenState extends State<ContactsScreen> {
                 decoration: InputDecoration(
                   labelText: 'Phone Number',
                 ),
+              ),
+              DropdownButtonFormField(
+                value: _selectedPhoneType,
+                items: PhoneType.values.map((type) {
+                  return DropdownMenuItem(
+                    value: type,
+                    child: Text(type.toString().split('.').last),
+                  );
+                }).toList(),
+                onChanged: (type) {
+                  setState(() {
+                    _selectedPhoneType = type as PhoneType;
+                  });
+                },
               ),
             ],
           ),
@@ -188,9 +239,12 @@ class _ContactsScreenState extends State<ContactsScreen> {
     if (name.isNotEmpty && phoneNumber.isNotEmpty) {
       setState(() {
         _contacts[index].name = name;
-        _contacts[index].phoneNumbers = [phoneNumber];
+        _contacts[index].phoneNumbers = [
+          PhoneNumber(number: phoneNumber, type: _selectedPhoneType),
+        ];
         _nameController.clear();
         _phoneNumberController.clear();
+        _selectedPhoneType = PhoneType.mobile; // Reset selected phone type
       });
     }
   }
@@ -239,7 +293,40 @@ class _ContactsScreenState extends State<ContactsScreen> {
 
 class Contact {
   String name;
-  List<String> phoneNumbers;
+  List<PhoneNumber> phoneNumbers;
 
   Contact({required this.name, required this.phoneNumbers});
+
+  String get mobileNumber {
+    for (var phoneNumber in phoneNumbers) {
+      if (phoneNumber.type == PhoneType.mobile) {
+        return phoneNumber.number;
+      }
+    }
+    return '';
+  }
+
+  PhoneType get mobileNumberType {
+    for (var phoneNumber in phoneNumbers) {
+      if (phoneNumber.type == PhoneType.mobile) {
+        return phoneNumber.type;
+      }
+    }
+    return PhoneType.mobile;
+  }
 }
+
+class PhoneNumber {
+  String number;
+  PhoneType type;
+  String? label;
+
+  PhoneNumber({required this.number, required this.type, this.label});
+
+  @override
+  String toString() {
+    return '${label ?? type.toString().split('.').last}: $number';
+  }
+}
+
+enum PhoneType { mobile, work, custom }
