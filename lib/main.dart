@@ -11,6 +11,7 @@ import 'profile.dart';
 import 'settings.dart';
 import 'notice.dart';
 import 'payonline.dart';
+import 'landing.dart';
 
 void main() {
   runApp(MyApp());
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: PayOnlineScreen(), //OTPScreen(),
+      home: LandingPage(),
     );
   }
 }
