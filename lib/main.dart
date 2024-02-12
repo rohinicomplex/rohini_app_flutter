@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'otp.dart';
 import 'approval.dart';
+import 'charge.dart';
+import 'invoice.dart';
 
 void main() {
   runApp(MyApp());
@@ -14,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: ApprovalScreen(),
+      home: ChargeScreen(), //OTPScreen(),
     );
   }
 }
