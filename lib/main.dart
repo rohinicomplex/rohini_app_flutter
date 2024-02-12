@@ -9,6 +9,7 @@ import 'contacts.dart';
 import 'ledger.dart';
 import 'profile.dart';
 import 'settings.dart';
+import 'notice.dart';
 
 void main() {
   runApp(MyApp());
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: SettingsPage(), //OTPScreen(),
+      home: NoticeScreen(), //OTPScreen(),
     );
   }
 }
