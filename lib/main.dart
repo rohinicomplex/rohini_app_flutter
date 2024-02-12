@@ -8,6 +8,7 @@ import 'chat.dart';
 import 'contacts.dart';
 import 'ledger.dart';
 import 'profile.dart';
+import 'settings.dart';
 
 void main() {
   runApp(MyApp());
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: ProfilePage(), //OTPScreen(),
+      home: SettingsPage(), //OTPScreen(),
     );
   }
 }
