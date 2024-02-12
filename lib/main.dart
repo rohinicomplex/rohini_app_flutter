@@ -10,6 +10,7 @@ import 'ledger.dart';
 import 'profile.dart';
 import 'settings.dart';
 import 'notice.dart';
+import 'payonline.dart';
 
 void main() {
   runApp(MyApp());
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: NoticeScreen(), //OTPScreen(),
+      home: PayOnlineScreen(), //OTPScreen(),
     );
   }
 }
