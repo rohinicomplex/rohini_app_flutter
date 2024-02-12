@@ -6,6 +6,7 @@ import 'invoice.dart';
 import 'event.dart';
 import 'chat.dart';
 import 'contacts.dart';
+import 'ledger.dart';
 
 void main() {
   runApp(MyApp());
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: ContactsScreen(), //OTPScreen(),
+      home: LedgerScreen(), //OTPScreen(),
     );
   }
 }
