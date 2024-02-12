@@ -3,6 +3,7 @@ import 'otp.dart';
 import 'approval.dart';
 import 'charge.dart';
 import 'invoice.dart';
+import 'event.dart';
 
 void main() {
   runApp(MyApp());
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: ChargeScreen(), //OTPScreen(),
+      home: CommunityHallBookingScreen(), //OTPScreen(),
     );
   }
 }
