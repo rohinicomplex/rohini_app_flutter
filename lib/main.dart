@@ -7,6 +7,7 @@ import 'event.dart';
 import 'chat.dart';
 import 'contacts.dart';
 import 'ledger.dart';
+import 'profile.dart';
 
 void main() {
   runApp(MyApp());
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: LedgerScreen(), //OTPScreen(),
+      home: ProfilePage(), //OTPScreen(),
     );
   }
 }
