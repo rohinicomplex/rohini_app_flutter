@@ -4,6 +4,7 @@ import 'approval.dart';
 import 'charge.dart';
 import 'invoice.dart';
 import 'event.dart';
+import 'chat.dart';
 
 void main() {
   runApp(MyApp());
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: CommunityHallBookingScreen(), //OTPScreen(),
+      home: GroupChatScreen(), //OTPScreen(),
     );
   }
 }
