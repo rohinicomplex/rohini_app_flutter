@@ -1,16 +1,5 @@
 import 'package:flutter/material.dart';
 import 'otp.dart';
-import 'approval.dart';
-import 'charge.dart';
-import 'invoice.dart';
-import 'event.dart';
-import 'chat.dart';
-import 'contacts.dart';
-import 'ledger.dart';
-import 'profile.dart';
-import 'settings.dart';
-import 'notice.dart';
-import 'payonline.dart';
 import 'landing.dart';
 
 void main() {

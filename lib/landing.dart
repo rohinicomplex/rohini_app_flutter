@@ -1,4 +1,15 @@
 import 'package:flutter/material.dart';
+import 'approval.dart';
+import 'charge.dart';
+import 'invoice.dart';
+import 'event.dart';
+import 'chat.dart';
+import 'contacts.dart';
+import 'ledger.dart';
+import 'profile.dart';
+import 'settings.dart';
+import 'notice.dart';
+import 'payonline.dart';
 
 class LandingPage extends StatelessWidget {
   @override
@@ -6,6 +17,17 @@ class LandingPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Rohini Complex'), // Updated appbar title
+        actions: [
+          IconButton(
+            icon: Icon(Icons.account_circle),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfilePage()),
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
