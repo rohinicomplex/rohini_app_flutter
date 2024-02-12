@@ -79,6 +79,11 @@ class LandingPage extends StatelessWidget {
                     label: 'Invoice',
                     onTap: () {
                       // Navigate to Invoice screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => InvoiceScreen()),
+                      );
                     },
                   ),
                   NavigationButton(
@@ -86,6 +91,10 @@ class LandingPage extends StatelessWidget {
                     label: 'Charges',
                     onTap: () {
                       // Navigate to Charges screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ChargeScreen()),
+                      );
                     },
                   ),
                   NavigationButton(
@@ -93,6 +102,11 @@ class LandingPage extends StatelessWidget {
                     label: 'Pay Online',
                     onTap: () {
                       // Navigate to Pay Online screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PayOnlineScreen()),
+                      );
                     },
                   ),
                   NavigationButton(
@@ -100,6 +114,10 @@ class LandingPage extends StatelessWidget {
                     label: 'Notice',
                     onTap: () {
                       // Navigate to Notice screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => NoticeScreen()),
+                      );
                     },
                   ),
                   NavigationButton(
@@ -107,6 +125,11 @@ class LandingPage extends StatelessWidget {
                     label: 'Chat',
                     onTap: () {
                       // Navigate to Chat screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => GroupChatScreen()),
+                      );
                     },
                   ),
                   NavigationButton(
@@ -114,6 +137,11 @@ class LandingPage extends StatelessWidget {
                     label: 'Book Event',
                     onTap: () {
                       // Navigate to Book Event screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => CommunityHallBookingScreen()),
+                      );
                     },
                   ),
                   NavigationButton(
@@ -121,6 +149,10 @@ class LandingPage extends StatelessWidget {
                     label: 'Ledger',
                     onTap: () {
                       // Navigate to Ledger screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LedgerScreen()),
+                      );
                     },
                   ),
                   NavigationButton(
@@ -128,6 +160,12 @@ class LandingPage extends StatelessWidget {
                     label: 'Contacts',
                     onTap: () {
                       // Navigate to Contacts screen
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ContactsScreen()),
+                      );
                     },
                   ),
                   NavigationButton(
