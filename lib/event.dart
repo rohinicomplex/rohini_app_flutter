@@ -10,7 +10,11 @@ class _CommunityHallBookingScreenState
     extends State<CommunityHallBookingScreen> {
   List<DateTime> _selectedDates = [];
   TextEditingController _eventNameController = TextEditingController();
-  List<String> _bookedEvents = []; // Sample booked events
+  List<Map<String, dynamic>> _bookedEvents = [
+    {'date': DateTime.now(), 'eventName': 'Event 1'},
+    {'date': DateTime.now().add(Duration(days: 1)), 'eventName': 'Event 2'},
+    {'date': DateTime.now().add(Duration(days: 2)), 'eventName': 'Event 3'}
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -66,9 +70,17 @@ class _CommunityHallBookingScreenState
             child: ListView.builder(
               itemCount: _bookedEvents.length,
               itemBuilder: (context, index) {
+                final event = _bookedEvents[index];
                 return ListTile(
-                  title: Text(_bookedEvents[index]),
-                  // Add other event details if needed
+                  title: Text(
+                    '${event['date'].day}/${event['date'].month}/${event['date'].year} - ${event['eventName']}',
+                  ),
+                  trailing: IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: () {
+                      _confirmDeleteEvent(context, index);
+                    },
+                  ),
                 );
               },
             ),
@@ -148,10 +160,46 @@ class _CommunityHallBookingScreenState
     String eventName = _eventNameController.text.trim();
     if (eventName.isNotEmpty) {
       setState(() {
-        _bookedEvents.add(eventName);
+        _bookedEvents.add({
+          'date': _selectedDates[0], // Assume only one date is selected
+          'eventName': eventName,
+        });
         _eventNameController.clear();
-        _selectedDates.clear(); // Clear selected dates after adding event
+        _selectedDates.clear();
       });
     }
+  }
+
+  void _confirmDeleteEvent(BuildContext context, int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Delete'),
+          content: Text('Are you sure you want to delete this event?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _deleteEvent(index);
+                Navigator.of(context).pop();
+              },
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _deleteEvent(int index) {
+    setState(() {
+      _bookedEvents.removeAt(index);
+    });
   }
 }
