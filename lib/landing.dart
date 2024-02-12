@@ -194,6 +194,12 @@ class LandingPage extends StatelessWidget {
                     label: 'Approvals',
                     onTap: () {
                       // Navigate to Approvals screen
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ApprovalScreen()),
+                      );
                     },
                   ),
                 ],
@@ -247,4 +253,19 @@ class NavigationButton extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _buildBankInfoRow(String title, String value) {
+  return Padding(
+    padding: EdgeInsets.symmetric(vertical: 4.0),
+    child: RichText(
+      text: TextSpan(
+        text: '$title: ',
+        style: TextStyle(fontWeight: FontWeight.bold),
+        children: [
+          TextSpan(text: value),
+        ],
+      ),
+    ),
+  );
 }

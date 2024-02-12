@@ -23,7 +23,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
       appBar: AppBar(
         title: Text('Invoices'),
       ),
-      drawer: Drawer(
+      endDrawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
