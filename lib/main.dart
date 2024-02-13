@@ -13,6 +13,7 @@ import 'settings.dart';
 import 'notice.dart';
 import 'payonline.dart';
 import 'expense.dart';
+import 'income.dart';
 
 void main() {
   runApp(MyApp());
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      initialRoute: '/expense',
+      initialRoute: '/customersel',
       routes: {
         '/otp': (context) => OTPScreen(),
         '/expense': (context) => ExpenseAddScreen(),
@@ -41,6 +42,12 @@ class MyApp extends StatelessWidget {
         '/ledger': (context) => LedgerScreen(),
         '/contacts': (context) => ContactsScreen(),
         '/approvals': (context) => ApprovalScreen(),
+        '/settings': (context) => SettingsPage(),
+        '/customersel': (context) => CustomerSelectionScreen(),
+        '/chargesel': (context) => ChargesSelectionScreen(),
+        '/payment_details': (context) => PaymentDetailsScreen(),
+        '/payment_distribution': (context) => PaymentDistributionScreen(),
+        '/summary': (context) => SummaryScreen(),
       },
     );
   }
