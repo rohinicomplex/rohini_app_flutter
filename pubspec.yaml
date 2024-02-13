@@ -10,11 +10,14 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_html: ^2.2.1
+  image_picker: ^0.8.4+1
   url_launcher: ^6.2.4  # Use the latest version available
   firebase_core: ^2.15.0
   firebase_auth: ^4.7.2
   cloud_firestore: ^4.8.4
   intl: ^0.18.1
+  file_picker: ^4.0.0
+  camera: ^0.9.4
   
   
 

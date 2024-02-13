@@ -163,6 +163,7 @@ class LandingPage extends StatelessWidget {
                     label: 'Add Expense',
                     onTap: () {
                       // Navigate to Add Expense screen
+                      Navigator.pushNamed(context, '/expense');
                     },
                   ),
                   NavigationButton(
@@ -196,7 +197,7 @@ class LandingPage extends StatelessWidget {
               children: [
                 BottomButton(
                   icon: Icons.phone,
-                  label: 'Call',
+                  label: 'Intercom',
                   onTap: () {
                     // Handle Call button tap
                   },

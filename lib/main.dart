@@ -12,6 +12,7 @@ import 'profile.dart';
 import 'settings.dart';
 import 'notice.dart';
 import 'payonline.dart';
+import 'expense.dart';
 
 void main() {
   runApp(MyApp());
@@ -25,9 +26,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      initialRoute: '/landing',
+      initialRoute: '/expense',
       routes: {
         '/otp': (context) => OTPScreen(),
+        '/expense': (context) => ExpenseAddScreen(),
         '/landing': (context) => LandingPage(),
         '/profile': (context) => ProfilePage(),
         '/invoice': (context) => InvoiceScreen(),
