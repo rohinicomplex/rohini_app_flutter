@@ -31,90 +31,6 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
         amount: 200,
         paymentStatus: 'Pending'),
     // Add more pay items here
-    PayItem(
-        id: '004',
-        invoiceDate: '2024-02-09',
-        chargeDetails: 'Garbage Collection',
-        dueDate: '2024-02-19',
-        amount: 120,
-        paymentStatus: 'Pending'),
-    PayItem(
-        id: '005',
-        invoiceDate: '2024-02-08',
-        chargeDetails: 'Security Service',
-        dueDate: '2024-02-18',
-        amount: 180,
-        paymentStatus: 'Paid'),
-    PayItem(
-        id: '006',
-        invoiceDate: '2024-02-07',
-        chargeDetails: 'Gardening Service',
-        dueDate: '2024-02-17',
-        amount: 220,
-        paymentStatus: 'Pending'),
-    PayItem(
-        id: '007',
-        invoiceDate: '2024-02-06',
-        chargeDetails: 'Parking Fee',
-        dueDate: '2024-02-16',
-        amount: 130,
-        paymentStatus: 'Paid'),
-    PayItem(
-        id: '008',
-        invoiceDate: '2024-02-05',
-        chargeDetails: 'Common Area Cleaning',
-        dueDate: '2024-02-15',
-        amount: 170,
-        paymentStatus: 'Pending'),
-    PayItem(
-        id: '009',
-        invoiceDate: '2024-02-04',
-        chargeDetails: 'Swimming Pool Maintenance',
-        dueDate: '2024-02-14',
-        amount: 250,
-        paymentStatus: 'Pending'),
-    PayItem(
-        id: '010',
-        invoiceDate: '2024-02-03',
-        chargeDetails: 'Internet Bill',
-        dueDate: '2024-02-13',
-        amount: 110,
-        paymentStatus: 'Paid'),
-    PayItem(
-        id: '011',
-        invoiceDate: '2024-02-02',
-        chargeDetails: 'Fitness Center Fee',
-        dueDate: '2024-02-12',
-        amount: 190,
-        paymentStatus: 'Pending'),
-    PayItem(
-        id: '012',
-        invoiceDate: '2024-02-01',
-        chargeDetails: 'Gas Bill',
-        dueDate: '2024-02-11',
-        amount: 140,
-        paymentStatus: 'Pending'),
-    PayItem(
-        id: '013',
-        invoiceDate: '2024-01-31',
-        chargeDetails: 'Property Tax',
-        dueDate: '2024-02-10',
-        amount: 160,
-        paymentStatus: 'Paid'),
-    PayItem(
-        id: '014',
-        invoiceDate: '2024-01-30',
-        chargeDetails: 'Insurance Premium',
-        dueDate: '2024-02-09',
-        amount: 200,
-        paymentStatus: 'Pending'),
-    PayItem(
-        id: '015',
-        invoiceDate: '2024-01-29',
-        chargeDetails: 'Society Event Fee',
-        dueDate: '2024-02-08',
-        amount: 230,
-        paymentStatus: 'Pending'),
   ];
   Set<PayItem> _selectedItems = {};
 
@@ -127,19 +43,17 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          DropdownButtonFormField<String>(
-            value: _selectedUserName,
-            items: _userNames.map((name) {
-              return DropdownMenuItem(
-                value: name,
-                child: Text(name),
-              );
-            }).toList(),
-            onChanged: (value) {
-              setState(() {
-                _selectedUserName = value!;
-              });
+          GestureDetector(
+            onTap: () {
+              _selectUser(context);
             },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                'Selected User: $_selectedUserName',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
           ),
           Expanded(
             child: ListView.builder(
@@ -232,6 +146,33 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
               child: Text('Close'),
             ),
           ],
+        );
+      },
+    );
+  }
+
+  void _selectUser(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 200.0, // Adjust height as needed
+          child: ListView.builder(
+            itemCount: _userNames.length,
+            itemBuilder: (context, index) {
+              final userName = _userNames[index];
+              return ListTile(
+                title: Text(userName),
+                onTap: () {
+                  setState(() {
+                    _selectedUserName = userName;
+                  });
+                  Navigator.pop(
+                      context); // Close the bottom sheet after selection
+                },
+              );
+            },
+          ),
         );
       },
     );

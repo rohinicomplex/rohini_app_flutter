@@ -1,15 +1,4 @@
 import 'package:flutter/material.dart';
-import 'approval.dart';
-import 'charge.dart';
-import 'invoice.dart';
-import 'event.dart';
-import 'chat.dart';
-import 'contacts.dart';
-import 'ledger.dart';
-import 'profile.dart';
-import 'settings.dart';
-import 'notice.dart';
-import 'payonline.dart';
 
 class LandingPage extends StatelessWidget {
   @override
@@ -21,10 +10,7 @@ class LandingPage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.account_circle),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ProfilePage()),
-              );
+              Navigator.pushNamed(context, '/profile');
             },
           ),
         ],
@@ -76,96 +62,56 @@ class LandingPage extends StatelessWidget {
                     icon: Icons.receipt,
                     label: 'Invoice',
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => InvoiceScreen(),
-                        ),
-                      );
+                      Navigator.pushNamed(context, '/invoice');
                     },
                   ),
                   NavigationButton(
                     icon: Icons.money,
                     label: 'Charges',
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ChargeScreen(),
-                        ),
-                      );
+                      Navigator.pushNamed(context, '/charges');
                     },
                   ),
                   NavigationButton(
                     icon: Icons.payment,
                     label: 'Pay Online',
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PayOnlineScreen(),
-                        ),
-                      );
+                      Navigator.pushNamed(context, '/payonline');
                     },
                   ),
                   NavigationButton(
                     icon: Icons.notification_important,
                     label: 'Notice',
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => NoticeScreen(),
-                        ),
-                      );
+                      Navigator.pushNamed(context, '/notice');
                     },
                   ),
                   NavigationButton(
                     icon: Icons.chat,
                     label: 'Chat',
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => GroupChatScreen(),
-                        ),
-                      );
+                      Navigator.pushNamed(context, '/chat');
                     },
                   ),
                   NavigationButton(
                     icon: Icons.event,
                     label: 'Book Event',
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CommunityHallBookingScreen(),
-                        ),
-                      );
+                      Navigator.pushNamed(context, '/event');
                     },
                   ),
                   NavigationButton(
                     icon: Icons.book,
                     label: 'Ledger',
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LedgerScreen(),
-                        ),
-                      );
+                      Navigator.pushNamed(context, '/ledger');
                     },
                   ),
                   NavigationButton(
                     icon: Icons.contacts,
                     label: 'Contacts',
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ContactsScreen(),
-                        ),
-                      );
+                      Navigator.pushNamed(context, '/contacts');
                     },
                   ),
                   NavigationButton(
@@ -231,12 +177,7 @@ class LandingPage extends StatelessWidget {
                     label: 'Approvals',
                     onTap: () {
                       // Navigate to Approvals screen
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ApprovalScreen()),
-                      );
+                      Navigator.pushNamed(context, '/approvals');
                     },
                   ),
                 ],

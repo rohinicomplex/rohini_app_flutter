@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter/material.dart';
-
 class InvoiceScreen extends StatefulWidget {
   @override
   _InvoiceScreenState createState() => _InvoiceScreenState();
