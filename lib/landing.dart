@@ -172,11 +172,17 @@ class LandingPage extends StatelessWidget {
                     icon: Icons.account_balance,
                     label: 'Bank Info',
                     onTap: () {
+                      // Navigate to Bank Info screen
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
-                            title: Text('Bank Info'),
+                            title: Text(
+                              'Bank Info',
+                              style: TextStyle(
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ),
                             content: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
@@ -224,16 +230,58 @@ class LandingPage extends StatelessWidget {
                     icon: Icons.thumb_up,
                     label: 'Approvals',
                     onTap: () {
+                      // Navigate to Approvals screen
+
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ApprovalScreen(),
-                        ),
+                            builder: (context) => ApprovalScreen()),
                       );
                     },
                   ),
                 ],
               ),
+            ),
+          ),
+          SizedBox(height: 20.0),
+          Divider(
+            color: Theme.of(context).primaryColor,
+            thickness: 1.0,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                BottomButton(
+                  icon: Icons.phone,
+                  label: 'Call',
+                  onTap: () {
+                    // Handle Call button tap
+                  },
+                ),
+                BottomButton(
+                  icon: Icons.person,
+                  label: 'Me',
+                  onTap: () {
+                    // Handle Me button tap
+                  },
+                ),
+                BottomButton(
+                  icon: Icons.build,
+                  label: 'Service',
+                  onTap: () {
+                    // Handle Service button tap
+                  },
+                ),
+                BottomButton(
+                  icon: Icons.settings,
+                  label: 'Settings',
+                  onTap: () {
+                    // Handle Settings button tap
+                  },
+                ),
+              ],
             ),
           ),
         ],
@@ -278,10 +326,43 @@ class NavigationButton extends StatelessWidget {
             Text(
               label,
               style: TextStyle(fontSize: 12.0),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class BottomButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const BottomButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          icon: Icon(icon),
+          color: Theme.of(context).primaryColor,
+          onPressed: onTap,
+        ),
+        SizedBox(height: 4.0),
+        Text(
+          label,
+          style: TextStyle(fontSize: 12.0),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }
@@ -294,7 +375,10 @@ Widget _buildBankInfoRow(String title, String value) {
         text: '$title: ',
         style: TextStyle(fontWeight: FontWeight.bold),
         children: [
-          TextSpan(text: value),
+          TextSpan(
+            text: value,
+            style: TextStyle(fontWeight: FontWeight.normal),
+          ),
         ],
       ),
     ),
