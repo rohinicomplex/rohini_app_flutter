@@ -30,6 +30,12 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Add Expense'),
+        actions: [
+          IconButton(
+            onPressed: _importBankTransactions,
+            icon: Icon(Icons.import_export),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
@@ -302,6 +308,45 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
     if (selectedType != null) {
       setState(() {
         _selectedExpenseType = selectedType;
+      });
+    }
+  }
+
+  void _importBankTransactions() async {
+    // Implement importing bank transactions and showing a popup dialog
+    final selectedTransaction = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Select Bank Transaction'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                ListTile(
+                  title: Text('Transaction 1'),
+                  onTap: () {
+                    Navigator.of(context).pop('Transaction 1');
+                  },
+                ),
+                ListTile(
+                  title: Text('Transaction 2'),
+                  onTap: () {
+                    Navigator.of(context).pop('Transaction 2');
+                  },
+                ),
+                // Add more transactions as needed
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (selectedTransaction != null) {
+      // Update reference and amount based on the selected transaction
+      setState(() {
+        _reference = selectedTransaction;
+        // Update amount if needed
       });
     }
   }
