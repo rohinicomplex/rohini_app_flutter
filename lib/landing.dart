@@ -16,7 +16,7 @@ class LandingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Rohini Complex'), // Updated appbar title
+        title: Text('Rohini Complex'),
         actions: [
           IconButton(
             icon: Icon(Icons.account_circle),
@@ -32,15 +32,14 @@ class LandingPage extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(
-              height: 20.0), // Add space between big box and navigation buttons
+          SizedBox(height: 20.0),
           Container(
             margin: EdgeInsets.symmetric(horizontal: 20.0),
             padding: EdgeInsets.all(20.0),
-            height: 200.0, // Increased height of the box
+            height: 200.0,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20.0),
-              color: Theme.of(context).primaryColor, // Use primary color
+              color: Theme.of(context).primaryColor,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,7 +48,7 @@ class LandingPage extends StatelessWidget {
                   'Welcome to Our App',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 20.0, // Reduce font size
+                    fontSize: 20.0,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -58,31 +57,30 @@ class LandingPage extends StatelessWidget {
                   'Explore various features and functionalities.',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 14.0, // Reduce font size
+                    fontSize: 14.0,
                   ),
                 ),
               ],
             ),
           ),
-          SizedBox(
-              height: 20.0), // Add space between big box and navigation buttons
+          SizedBox(height: 20.0),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: GridView.count(
                 crossAxisCount: 3,
-                crossAxisSpacing: 10.0, // Add horizontal spacing between items
-                mainAxisSpacing: 10.0, // Add vertical spacing between items
+                crossAxisSpacing: 10.0,
+                mainAxisSpacing: 10.0,
                 children: [
                   NavigationButton(
                     icon: Icons.receipt,
                     label: 'Invoice',
                     onTap: () {
-                      // Navigate to Invoice screen
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => InvoiceScreen()),
+                          builder: (context) => InvoiceScreen(),
+                        ),
                       );
                     },
                   ),
@@ -90,10 +88,11 @@ class LandingPage extends StatelessWidget {
                     icon: Icons.money,
                     label: 'Charges',
                     onTap: () {
-                      // Navigate to Charges screen
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => ChargeScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => ChargeScreen(),
+                        ),
                       );
                     },
                   ),
@@ -101,11 +100,11 @@ class LandingPage extends StatelessWidget {
                     icon: Icons.payment,
                     label: 'Pay Online',
                     onTap: () {
-                      // Navigate to Pay Online screen
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => PayOnlineScreen()),
+                          builder: (context) => PayOnlineScreen(),
+                        ),
                       );
                     },
                   ),
@@ -113,10 +112,11 @@ class LandingPage extends StatelessWidget {
                     icon: Icons.notification_important,
                     label: 'Notice',
                     onTap: () {
-                      // Navigate to Notice screen
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => NoticeScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => NoticeScreen(),
+                        ),
                       );
                     },
                   ),
@@ -124,11 +124,11 @@ class LandingPage extends StatelessWidget {
                     icon: Icons.chat,
                     label: 'Chat',
                     onTap: () {
-                      // Navigate to Chat screen
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => GroupChatScreen()),
+                          builder: (context) => GroupChatScreen(),
+                        ),
                       );
                     },
                   ),
@@ -136,11 +136,11 @@ class LandingPage extends StatelessWidget {
                     icon: Icons.event,
                     label: 'Book Event',
                     onTap: () {
-                      // Navigate to Book Event screen
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => CommunityHallBookingScreen()),
+                          builder: (context) => CommunityHallBookingScreen(),
+                        ),
                       );
                     },
                   ),
@@ -148,10 +148,11 @@ class LandingPage extends StatelessWidget {
                     icon: Icons.book,
                     label: 'Ledger',
                     onTap: () {
-                      // Navigate to Ledger screen
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => LedgerScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => LedgerScreen(),
+                        ),
                       );
                     },
                   ),
@@ -159,12 +160,11 @@ class LandingPage extends StatelessWidget {
                     icon: Icons.contacts,
                     label: 'Contacts',
                     onTap: () {
-                      // Navigate to Contacts screen
-
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ContactsScreen()),
+                          builder: (context) => ContactsScreen(),
+                        ),
                       );
                     },
                   ),
@@ -172,7 +172,38 @@ class LandingPage extends StatelessWidget {
                     icon: Icons.account_balance,
                     label: 'Bank Info',
                     onTap: () {
-                      // Navigate to Bank Info screen
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text('Bank Info'),
+                            content: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _buildBankInfoRow('Account Name',
+                                    'ROHINI COMPLEX FLAT OWNERS ASSOCIATION'),
+                                _buildBankInfoRow(
+                                    'Account Number', '00000035088967363'),
+                                _buildBankInfoRow(
+                                    'Bank Name', 'State Bank of India'),
+                                _buildBankInfoRow('Account Type', 'Savings'),
+                                _buildBankInfoRow('IFS Code', 'SBIN0012384'),
+                                _buildBankInfoRow(
+                                    'Branch', 'RAJARHAT TOWNSHIP'),
+                              ],
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('Close'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
                     },
                   ),
                   NavigationButton(
@@ -193,12 +224,11 @@ class LandingPage extends StatelessWidget {
                     icon: Icons.thumb_up,
                     label: 'Approvals',
                     onTap: () {
-                      // Navigate to Approvals screen
-
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ApprovalScreen()),
+                          builder: (context) => ApprovalScreen(),
+                        ),
                       );
                     },
                   ),
@@ -231,22 +261,23 @@ class NavigationButton extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20.0),
           border: Border.all(
-              color: Theme.of(context)
-                  .primaryColor), // Use primary color for border
+            color: Theme.of(context).primaryColor,
+          ),
           color: Colors.white,
         ),
-        padding: EdgeInsets.all(10.0), // Add padding
+        padding: EdgeInsets.all(10.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon,
-                size: 36.0,
-                color: Theme.of(context)
-                    .primaryColor), // Reduce icon size and use primary color
-            SizedBox(height: 4.0), // Add space between icon and label
+            Icon(
+              icon,
+              size: 36.0,
+              color: Theme.of(context).primaryColor,
+            ),
+            SizedBox(height: 4.0),
             Text(
               label,
-              style: TextStyle(fontSize: 12.0), // Reduce font size
+              style: TextStyle(fontSize: 12.0),
             ),
           ],
         ),
