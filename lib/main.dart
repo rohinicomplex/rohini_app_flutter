@@ -15,6 +15,8 @@ import 'payonline.dart';
 import 'expense.dart';
 import 'income.dart';
 import 'notification.dart';
+import 'service.dart';
+import 'intercom.dart';
 
 void main() {
   runApp(MyApp());
@@ -29,7 +31,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      initialRoute: '/notification',
+      initialRoute: '/intercom',
       routes: {
         '/otp': (context) => OTPScreen(),
         '/expense': (context) => ExpenseAddScreen(),
@@ -53,6 +55,8 @@ class MyApp extends StatelessWidget {
         '/payment_distribution': (context) => PaymentDistributionScreen(),
         '/summary': (context) => SummaryScreen(),
         '/notification': (context) => NotificationsPage(),
+        '/service': (context) => ServiceScreen(),
+        '/intercom': (context) => IntercomScreen(),
       },
     );
   }

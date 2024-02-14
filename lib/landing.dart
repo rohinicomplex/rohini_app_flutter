@@ -200,6 +200,7 @@ class LandingPage extends StatelessWidget {
                   label: 'Intercom',
                   onTap: () {
                     // Handle Call button tap
+                    Navigator.pushNamed(context, '/intercom');
                   },
                 ),
                 BottomButton(
@@ -214,6 +215,7 @@ class LandingPage extends StatelessWidget {
                   label: 'Service',
                   onTap: () {
                     // Handle Service button tap
+                    Navigator.pushNamed(context, '/service');
                   },
                 ),
                 BottomButton(
