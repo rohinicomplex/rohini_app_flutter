@@ -276,11 +276,24 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
     });
   }
 
+  void _showBankTransactions(BuildContext context) {
+    // Show a popup with a list of bank transactions to select
+    // Implement your logic here
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Payment Details'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              _showBankTransactions(context);
+            },
+            icon: Icon(Icons.import_export),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
@@ -375,41 +388,73 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton.icon(
+                IconButton(
                   onPressed: () {
                     _distributePayment('Distribute top to down');
                   },
                   icon: Icon(Icons.arrow_downward),
-                  label: Text('Distribute Top to Down'),
                 ),
-                ElevatedButton.icon(
+                IconButton(
                   onPressed: () {
                     _distributePayment('Distribute evenly');
                   },
                   icon: Icon(Icons.compare_arrows),
-                  label: Text('Distribute Evenly'),
                 ),
-                ElevatedButton.icon(
+                IconButton(
                   onPressed: () {
                     _distributePayment('Distribute proportionately');
                   },
                   icon: Icon(Icons.format_align_center),
-                  label: Text('Distribute Proportionately'),
                 ),
-                ElevatedButton.icon(
+                IconButton(
                   onPressed: () {
                     _distributePayment('Discount remaining Amount');
                   },
                   icon: Icon(Icons.money_off),
-                  label: Text('Discount Remaining Amount'),
                 ),
               ],
             ),
             SizedBox(height: 16.0),
+            DataTable(
+              columns: const <DataColumn>[
+                DataColumn(label: Text('Charge ID')),
+                DataColumn(label: Text('Charge Details')),
+                DataColumn(label: Text('Amount Due')),
+                DataColumn(label: Text('Amount to Pay')),
+                DataColumn(label: Text('Discount Amt')),
+              ],
+              rows: widget.selectedCharges
+                  .map<DataRow>((chargeId) => DataRow(
+                        cells: <DataCell>[
+                          DataCell(Text('$chargeId')),
+                          DataCell(Text('Charge Details $chargeId')),
+                          DataCell(Text('\$50.00')), // Example data
+                          DataCell(TextField(
+                            onChanged: (value) {
+                              // Handle amount to pay changes
+                            },
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              hintText: 'Enter amount',
+                            ),
+                          )),
+                          DataCell(TextField(
+                            onChanged: (value) {
+                              // Handle discount amount changes
+                            },
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              hintText: 'Enter discount',
+                            ),
+                          )),
+                        ],
+                      ))
+                  .toList(),
+            ),
+            SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () {
-                // Implement payment submission
-                Navigator.pushNamed(context, '/summary');
+                Navigator.pushNamed(context, '/payment_distribution');
               },
               child: Text('Submit'),
             ),

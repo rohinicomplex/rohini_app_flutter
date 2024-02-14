@@ -14,6 +14,7 @@ import 'notice.dart';
 import 'payonline.dart';
 import 'expense.dart';
 import 'income.dart';
+import 'notification.dart';
 
 void main() {
   runApp(MyApp());
@@ -22,12 +23,13 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    //List<int> selectedCharges = [];
     return MaterialApp(
       title: 'Rohini Complex',
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      initialRoute: '/customersel',
+      initialRoute: '/notification',
       routes: {
         '/otp': (context) => OTPScreen(),
         '/expense': (context) => ExpenseAddScreen(),
@@ -45,9 +47,12 @@ class MyApp extends StatelessWidget {
         '/settings': (context) => SettingsPage(),
         '/customersel': (context) => CustomerSelectionScreen(),
         '/chargesel': (context) => ChargesSelectionScreen(),
-        '/payment_details': (context) => PaymentDetailsScreen(),
+        '/payment_details': (context) => PaymentDetailsScreen(
+              selectedCharges: [],
+            ),
         '/payment_distribution': (context) => PaymentDistributionScreen(),
         '/summary': (context) => SummaryScreen(),
+        '/notification': (context) => NotificationsPage(),
       },
     );
   }
