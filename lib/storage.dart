@@ -17,13 +17,13 @@ class LocalAppStorage {
     prefs.setBool('storage', true);
   }
 
-  Future getUserName(user) async {
+  Future getUserName() async {
     final prefs = await SharedPreferences.getInstance();
-    user = prefs.getString('username');
+    return prefs.getString('username');
   }
 
-  Future getToken(token) async {
+  Future getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    token = prefs.getString('token');
+    return prefs.getString('token');
   }
 }

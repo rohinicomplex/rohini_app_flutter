@@ -1,7 +1,9 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'storage.dart';
+import 'package:http/http.dart' as http;
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -10,13 +12,9 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   String _profileImageUrl = 'assets/default_profile_image.jpg';
-  String user = '';
-  String token = '';
   @override
   Widget build(BuildContext context) {
-    LocalAppStorage().getUserName(user);
-    LocalAppStorage().getToken(token);
-
+    _getUserData();
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile'),
@@ -116,5 +114,29 @@ class _ProfilePageState extends State<ProfilePage> {
     // setState(() {
     //   _profileImageUrl = pickedImage.path;
     // });
+  }
+
+  void _getUserData() async {
+    String user;
+    String token;
+
+    user = await LocalAppStorage().getUserName();
+    token = await LocalAppStorage().getToken();
+
+    //final prefs = await SharedPreferences.getInstance();
+    //var user = prefs.getString('username');
+    //var token = prefs.getString('token');
+
+    var map = new Map<String, dynamic>();
+    map['userName'] = user;
+    //map['password'] = 'password';
+
+    Map<String, String> requestHeaders = {'token': token, 'usertk': user};
+
+    final response = await http.post(
+        Uri.parse('https://rohinicomplex.in/service/getOwnProfile.php'),
+        body: map,
+        headers: requestHeaders);
+    print('Response ${response.body}');
   }
 }
