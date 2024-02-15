@@ -10,7 +10,7 @@ class LandingPage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.account_circle),
             onPressed: () {
-              Navigator.pushNamed(context, '/profile');
+              Navigator.pushNamed(context, '/settings');
             },
           ),
         ],
@@ -208,6 +208,7 @@ class LandingPage extends StatelessWidget {
                   label: 'Me',
                   onTap: () {
                     // Handle Me button tap
+                    Navigator.pushNamed(context, '/profile');
                   },
                 ),
                 BottomButton(
@@ -219,9 +220,10 @@ class LandingPage extends StatelessWidget {
                   },
                 ),
                 BottomButton(
-                  icon: Icons.settings,
-                  label: 'Settings',
+                  icon: Icons.notifications_active,
+                  label: 'Notification',
                   onTap: () {
+                    Navigator.pushNamed(context, '/notification');
                     // Handle Settings button tap
                   },
                 ),

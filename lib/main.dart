@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      initialRoute: '/intercom',
+      initialRoute: '/landing',
       routes: {
         '/otp': (context) => OTPScreen(),
         '/expense': (context) => ExpenseAddScreen(),

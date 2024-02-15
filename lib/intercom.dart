@@ -32,15 +32,6 @@ class _IntercomScreenState extends State<IntercomScreen> {
       ),
       body: Column(
         children: [
-          // Phone call display on top
-          Container(
-            padding: EdgeInsets.all(16),
-            color: Colors.grey[300],
-            child: Text(
-              'Phone Call Display',
-              style: TextStyle(fontSize: 18),
-            ),
-          ),
           // Tabs
           Expanded(
             child: DefaultTabController(
