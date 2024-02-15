@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'otp.dart';
 import 'landing.dart';
 import 'approval.dart';
@@ -25,6 +26,7 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    _storeTempData();
     //List<int> selectedCharges = [];
     return MaterialApp(
       title: 'Rohini Complex',
@@ -60,4 +62,12 @@ class MyApp extends StatelessWidget {
       },
     );
   }
+}
+
+void _storeTempData() async {
+  final prefs = await SharedPreferences.getInstance();
+  prefs.setString('token',
+      'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOiJzdSIsIm5iZiI6MTcwNzk3Njg1MywiZXhwIjoxNzM5NTk5MjUzfQ.taTVOm6OX1DCHDbRy-Ic64oAz8t__rUmKUu9QjnuQkc');
+  prefs.setString('username', 'su');
+  prefs.setBool('storage', true);
 }
