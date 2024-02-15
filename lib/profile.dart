@@ -1,4 +1,7 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
+import 'storage.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -7,9 +10,13 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   String _profileImageUrl = 'assets/default_profile_image.jpg';
-
+  String user = '';
+  String token = '';
   @override
   Widget build(BuildContext context) {
+    LocalAppStorage().getUserName(user);
+    LocalAppStorage().getToken(token);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile'),
