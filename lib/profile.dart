@@ -1,9 +1,10 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:html';
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -123,20 +124,36 @@ class _ProfilePageState extends State<ProfilePage> {
     user = await LocalAppStorage().getUserName();
     token = await LocalAppStorage().getToken();
 
-    //final prefs = await SharedPreferences.getInstance();
-    //var user = prefs.getString('username');
-    //var token = prefs.getString('token');
-
-    var map = new Map<String, dynamic>();
+    var map = new Map<String, String>();
     map['userName'] = user;
-    //map['password'] = 'password';
 
-    Map<String, String> requestHeaders = {'token': token, 'usertk': user};
-
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+      'token': token,
+      'usertk': user
+    };
+    //print(requestHeaders);
     final response = await http.post(
-        Uri.parse('https://rohinicomplex.in/service/getOwnProfile.php'),
-        body: map,
-        headers: requestHeaders);
-    print('Response ${response.body}');
+      Uri.parse('https://rohinicomplex.in/service/getOwnProfile1.php'),
+      body: map,
+    );
+    print(response.body);
+    /*String url = "https://jsonplaceholder.typicode.com/posts";
+    final response = await http.post(Uri.parse(url), body: map);
+
+    var responseData = json.decode(response.body);
+    print("hello");
+    print(response.statusCode); 
+
+    var url = Uri.https('google.com', '/');
+    var response =
+        await http.post(url, body: {'name': 'doodle', 'color': 'blue'});
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}'); 
+    final dio = Dio();
+    print("he;lo");
+    final response = await dio.get('https://rohinicomplex.in');
+    print("after");
+    print(response.data);*/
   }
 }

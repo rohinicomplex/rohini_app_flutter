@@ -20,6 +20,7 @@ dependencies:
   camera: ^0.9.4
   http: ^0.13.5
   shared_preferences: ^2.0.18
+  dio: ^5.4.0
   
   
 
