@@ -17,7 +17,6 @@ dependencies:
   cloud_firestore: ^4.8.4
   intl: ^0.18.1
   file_picker: ^4.0.0
-  camera: ^0.9.4
   http: ^0.13.5
   shared_preferences: ^2.0.18
   dio: ^5.4.0

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
+//import 'package:camera/camera.dart';
 import 'package:file_picker/file_picker.dart';
 
 class ExpenseAddScreen extends StatefulWidget {
@@ -266,7 +266,7 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
 
   void _takePicture() async {
     // Implement taking a picture through the camera
-    try {
+    /*try {
       final cameras = await availableCameras();
       final firstCamera = cameras.first;
       final CameraController cameraController = CameraController(
@@ -280,7 +280,7 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
     } catch (e) {
       // Handle any errors that occur during picture taking
       print('Error taking picture: $e');
-    }
+    }*/
   }
 
   Future<void> _showExpenseTypeDialog(BuildContext context) async {

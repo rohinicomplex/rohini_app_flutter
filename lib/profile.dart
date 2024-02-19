@@ -1,10 +1,7 @@
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:html';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:dio/dio.dart';
+import 'dart:convert';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -13,9 +10,12 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   String _profileImageUrl = 'assets/default_profile_image.jpg';
+  List<dynamic> testdata = [];
+  _ProfilePageState() {
+    _getUserData();
+  }
   @override
   Widget build(BuildContext context) {
-    _getUserData();
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile'),
@@ -56,28 +56,31 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             SizedBox(height: 20.0),
             // Other profile fields
-            _buildField('User ID', '12345'),
+            _buildField('User ID', testdata[0]['USERNAME']),
             SizedBox(height: 20.0),
-            _buildField('First Name', 'John'),
+            _buildField('First Name', testdata[0]['FNAME']),
             SizedBox(height: 20.0),
-            _buildField('Last Name', 'Doe'),
+            _buildField('Middle Name', testdata[0]['MNAME']),
+
+            SizedBox(height: 20.0),
+            _buildField('Last Name', testdata[0]['LNAME']),
             // Add more fields as needed
             SizedBox(height: 20.0),
-            _buildField('Sex', 'Male'),
+            _buildField('Sex', testdata[0]['sex']),
             SizedBox(height: 20.0),
-            _buildField('Date of Birth', '01-01-1990'),
+            _buildField('Date of Birth', testdata[0]['DOB']),
             SizedBox(height: 20.0),
-            _buildField('Address', '123 Main St, City, Country'),
+            _buildField('Address', testdata[0]['ADDRESS']),
             SizedBox(height: 20.0),
-            _buildField('PIN', '123456'),
+            _buildField('PIN', testdata[0]['PIN']),
             SizedBox(height: 20.0),
-            _buildField('Email', 'john.doe@example.com'),
+            _buildField('Email', testdata[0]['EMAIL']),
             SizedBox(height: 20.0),
-            _buildField('Phone', '+1234567890'),
+            _buildField('Phone', testdata[0]['PHONE']),
             SizedBox(height: 20.0),
-            _buildField('Mobile', '+9876543210'),
+            _buildField('Mobile', testdata[0]['MOBILENUMBER']),
             SizedBox(height: 20.0),
-            _buildField('Whatsapp', '+9876543210'),
+            _buildField('Whatsapp', testdata[0]['WANUMBER']),
             SizedBox(height: 20.0),
             _buildField('Role', 'User'),
           ],
@@ -117,43 +120,42 @@ class _ProfilePageState extends State<ProfilePage> {
     // });
   }
 
-  void _getUserData() async {
+  Future<Map<String, String>> _getUserData() async {
     String user;
     String token;
 
     user = await LocalAppStorage().getUserName();
     token = await LocalAppStorage().getToken();
-
+    var returnMap = new Map<String, String>();
     var map = new Map<String, String>();
     map['userName'] = user;
 
-    Map<String, String> requestHeaders = {
-      'Content-Type': 'application/json',
-      'token': token,
-      'usertk': user
-    };
-    //print(requestHeaders);
-    final response = await http.post(
-      Uri.parse('https://rohinicomplex.in/service/getOwnProfile1.php'),
-      body: map,
-    );
-    print(response.body);
-    /*String url = "https://jsonplaceholder.typicode.com/posts";
-    final response = await http.post(Uri.parse(url), body: map);
+    Map<String, String> requestHeaders = {'token': token, 'usertk': user};
+    var url = Uri.parse('https://rohinicomplex.in/service/getOwnProfile.php');
+    try {
+      var response = await http.post(
+        url,
+        headers: requestHeaders,
+        body: map,
+      );
+      if (response.statusCode == 200) {
+        // Request successful, parse the response data
+        print("success");
+        setState(() {
+          var data = json.decode(response.body);
+          testdata = data["profileData"];
+        });
 
-    var responseData = json.decode(response.body);
-    print("hello");
-    print(response.statusCode); 
+        //print(response.body);
+      } else {
+        // Request failed with a non-200 status code
+        print("success2");
+      }
+    } catch (e) {
+      // An error occurred during the request
 
-    var url = Uri.https('google.com', '/');
-    var response =
-        await http.post(url, body: {'name': 'doodle', 'color': 'blue'});
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}'); 
-    final dio = Dio();
-    print("he;lo");
-    final response = await dio.get('https://rohinicomplex.in');
-    print("after");
-    print(response.data);*/
+      print("fail");
+    }
+    return returnMap;
   }
 }
