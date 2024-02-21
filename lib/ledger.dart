@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'storage.dart';
 
 class LedgerScreen extends StatefulWidget {
   @override
@@ -6,26 +9,16 @@ class LedgerScreen extends StatefulWidget {
 }
 
 class _LedgerScreenState extends State<LedgerScreen> {
-  String _selectedFinancialYear = '2023-24';
+  _LedgerScreenState() {
+    _getFYs();
+  }
+  String _selectedFinancialYear = '2023';
   String _selectedPeriod = 'YLY';
 
-  List<DataRow> _incomeRows = [
-    DataRow(cells: [
-      DataCell(Text('Item 1')),
-      DataCell(Text('\$100')),
-    ]),
-    DataRow(cells: [
-      DataCell(Text('Item 2')),
-      DataCell(Text('\$200')),
-    ]),
-    DataRow(cells: [
-      DataCell(Text('Item 3')),
-      DataCell(Text('\$300')),
-    ]),
-  ];
+  List<DataRow> _incomeRows = [];
 
   List<DataRow> _expenseRows = [
-    DataRow(cells: [
+    /*DataRow(cells: [
       DataCell(Text('Expense 1')),
       DataCell(Text('\$50')),
     ]),
@@ -36,11 +29,11 @@ class _LedgerScreenState extends State<LedgerScreen> {
     DataRow(cells: [
       DataCell(Text('Expense 3')),
       DataCell(Text('\$250')),
-    ]),
+    ]),*/
   ];
 
   List<DataRow> _discountRows = [
-    DataRow(cells: [
+    /*DataRow(cells: [
       DataCell(Text('Discount 1')),
       DataCell(Text('\$10')),
     ]),
@@ -51,9 +44,10 @@ class _LedgerScreenState extends State<LedgerScreen> {
     DataRow(cells: [
       DataCell(Text('Discount 3')),
       DataCell(Text('\$30')),
-    ]),
+    ]), */
   ];
 
+  List<String> fys = [];
   bool _sortAscending = true;
 
   @override
@@ -76,10 +70,10 @@ class _LedgerScreenState extends State<LedgerScreen> {
                     _selectedFinancialYear = newValue!;
                   });
                 },
-                items: ['2023-24', '2022-23', '2021-22']
+                items: fys
                     .map<DropdownMenuItem<String>>(
                       (year) => DropdownMenuItem<String>(
-                        value: year,
+                        value: year.substring(0, 4),
                         child: Text(year),
                       ),
                     )
@@ -122,7 +116,7 @@ class _LedgerScreenState extends State<LedgerScreen> {
                   ],
                 ),
                 SizedBox(
-                  height: 400,
+                  height: MediaQuery.of(context).size.height - 200,
                   child: TabBarView(
                     children: [
                       _buildTable(_incomeRows),
@@ -139,8 +133,78 @@ class _LedgerScreenState extends State<LedgerScreen> {
     );
   }
 
-  void _showLedger() {
+  void _showLedger() async {
+    // Mock data for demonstration purposes
+
     // Implement logic to display ledger based on selected financial year and period
+    String user;
+    String token;
+
+    user = await LocalAppStorage().getUserName();
+    token = await LocalAppStorage().getToken();
+    Map<String, String> requestHeaders = {'token': token, 'usertk': user};
+
+    var map = new Map<String, String>();
+    map['FY'] = _selectedFinancialYear;
+    map['REPORTFOR'] = _selectedPeriod;
+    map['PendingTxn'] = 'false';
+    map['userid'] = user;
+    List<DataRow> disctableData = [];
+    List<DataRow> incomeTableData = [];
+    List<DataRow> expensetableData = [];
+    var url = Uri.parse('https://rohinicomplex.in/service/getLedgerData.php');
+    try {
+      var response = await http.post(
+        url,
+        headers: requestHeaders,
+        body: map,
+      );
+      if (response.statusCode == 200) {
+        // Codec<String, String> stringToBase64Url = utf8.fuse(base64Url);
+        var data = json.decode(response.body);
+        List disc = data['discountDtl'];
+        List income = data['incomecat'];
+        List expense = data['expenses'];
+
+        _discountRows.clear();
+
+        for (var i = 0; i < disc.length; i++) {
+          disctableData.add(DataRow(cells: [
+            DataCell(Text(disc[i]['Reason'])),
+            DataCell(Text('\u{20B9}' + disc[i]['Amount']))
+          ]));
+        }
+
+        _incomeRows.clear();
+        for (var i = 0; i < income.length; i++) {
+          incomeTableData.add(DataRow(cells: [
+            DataCell(Text(income[i]['DESCRIPTION'])),
+            DataCell(Text('\u{20B9}' + income[i]['AMOUNT']))
+          ]));
+        }
+        _expenseRows.clear();
+        for (var i = 0; i < expense.length; i++) {
+          expensetableData.add(DataRow(cells: [
+            DataCell(Text(expense[i]['DESCRPTION'])),
+            DataCell(Text('\u{20B9}' + expense[i]['AMOUNT']))
+          ]));
+        }
+      }
+    } catch (e) {
+      // An error occurred during the request
+
+      print("fail $e");
+    }
+
+    // Update the tables with the new data
+    setState(() {
+      // Assuming each table corresponds to a specific index in tableData
+      // 0 -> Income, 1 -> Expense, 2 -> Discount
+      // You can modify this logic based on your actual requirements
+      _incomeRows = incomeTableData;
+      _expenseRows = expensetableData;
+      _discountRows = disctableData;
+    });
   }
 
   Widget _buildTable(List<DataRow> rows) {
@@ -171,6 +235,7 @@ class _LedgerScreenState extends State<LedgerScreen> {
           ),
           DataColumn(
             label: Text('Amount'),
+            numeric: true,
             onSort: (columnIndex, ascending) {
               setState(() {
                 _sortAscending = ascending;
@@ -193,5 +258,21 @@ class _LedgerScreenState extends State<LedgerScreen> {
   int _getAmount(DataRow row) {
     final amountText = row.cells[1].child!.toString();
     return int.parse(amountText.replaceAll(RegExp(r'\D'), ''));
+  }
+
+  void _getFYs() async {
+    final now = DateTime.now();
+    int y = now.year;
+    fys.clear();
+    if (now.month < 4) {
+      y--;
+    }
+    _selectedFinancialYear = y.toString();
+    //'' + y.toString() + '-' + (y + 1 - 2000).toString();
+    while (y > 2018) {
+      fys.add('' + y.toString() + '-' + (y + 1 - 2000).toString());
+      y--;
+    }
+    //_selectedFinancialYear = '' + y.toString() + '-' + (y - 2000).toString();
   }
 }

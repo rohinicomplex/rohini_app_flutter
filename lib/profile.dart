@@ -11,6 +11,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   String _profileImageUrl = 'assets/default_profile_image.jpg';
   List<dynamic> testdata = [];
+  String roleNames = '';
   _ProfilePageState() {
     _getUserData();
   }
@@ -82,7 +83,7 @@ class _ProfilePageState extends State<ProfilePage> {
             SizedBox(height: 20.0),
             _buildField('Whatsapp', testdata[0]['WANUMBER']),
             SizedBox(height: 20.0),
-            _buildField('Role', 'User'),
+            _buildField('Role', roleNames),
           ],
         ),
       ),
@@ -144,6 +145,12 @@ class _ProfilePageState extends State<ProfilePage> {
         setState(() {
           var data = json.decode(response.body);
           testdata = data["profileData"];
+          var roles = data['roles'];
+          var roleString = '';
+          for (var e in roles) {
+            roleString = roleString + e["ROLENAME"] + ",";
+          }
+          roleNames = roleString;
         });
 
         //print(response.body);
