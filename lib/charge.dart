@@ -296,17 +296,16 @@ class _ChargeScreenState extends State<ChargeScreen> {
         body: map,
       );
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(
-            '[{"SLNO":"4040","INVDATE":"2024-02-01","DUEDATE":"2024-02-29","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4105","INVDATE":"2024-03-01","DUEDATE":"2024-03-31","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4168","INVDATE":"2024-04-01","DUEDATE":"2024-04-30","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4238","INVDATE":"2024-05-01","DUEDATE":"2024-05-31","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4302","INVDATE":"2024-06-01","DUEDATE":"2024-06-30","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4366","INVDATE":"2024-07-01","DUEDATE":"2024-07-31","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4430","INVDATE":"2024-08-01","DUEDATE":"2024-08-31","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4494","INVDATE":"2024-09-01","DUEDATE":"2024-09-30","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4559","INVDATE":"2024-10-01","DUEDATE":"2024-10-31","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4622","INVDATE":"2024-11-01","DUEDATE":"2024-11-30","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4704","INVDATE":"2024-12-01","DUEDATE":"2024-12-31","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4767","INVDATE":"2025-01-01","DUEDATE":"2025-01-31","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4836","INVDATE":"2025-02-01","DUEDATE":"2025-02-28","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"}]');
-        List<ChargeItem> c = [];
+        final List<dynamic> data = json.decode(response.body);
+        /*List<ChargeItem> c = [];
 
         for (var i = 0; i < data.length; i++) {
           c.add(ChargeItem.fromJson(data[i]));
-        }
+        }*/
         //  data.map((json) => print(json));
         setState(() {
-          //  _chargeItems = data.map((json) => ChargeItem.fromJson(json)).toList();
-          _chargeItems = c;
+          _chargeItems = data.map((json) => ChargeItem.fromJson(json)).toList();
+          // _chargeItems = c;
         });
       } else {
         throw Exception('Failed to load charge items');
@@ -366,12 +365,12 @@ class ChargeItemWidget extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Amount Due: \$${chargeItem.amountDue}'),
+            Text('Amount Due: \u{20B9}${chargeItem.amountDue}'),
             Text('Charge Details: ${chargeItem.chargeDetails}'),
             Text('Payment Status: ${chargeItem.paymentStatus}'),
             Text('Due Date: ${chargeItem.dueDate}'),
             Text('Charge ID#: ${chargeItem.chargeId}'),
-            Text('Amount: \$${chargeItem.amount}'),
+            Text('Amount: \u{20B9}${chargeItem.amount}'),
           ],
         ),
         trailing: ElevatedButton(
