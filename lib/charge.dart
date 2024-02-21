@@ -32,6 +32,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
   DateTime? _toDate;
   TextEditingController _searchController = TextEditingController();
   List<ChargeItem> _chargeItems = [];
+  List<ChargeItem> _allChargeItems = [];
 
   @override
   void initState() {
@@ -45,7 +46,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Charges'),
+        title: Text('Pending Charges'),
       ),
       endDrawer: Drawer(
         child: ListView(
@@ -297,15 +298,11 @@ class _ChargeScreenState extends State<ChargeScreen> {
       );
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        /*List<ChargeItem> c = [];
-
-        for (var i = 0; i < data.length; i++) {
-          c.add(ChargeItem.fromJson(data[i]));
-        }*/
-        //  data.map((json) => print(json));
         setState(() {
-          _chargeItems = data.map((json) => ChargeItem.fromJson(json)).toList();
-          // _chargeItems = c;
+          _allChargeItems =
+              data.map((json) => ChargeItem.fromJson(json)).toList();
+          _chargeItems = _allChargeItems;
+          _searchController.text = "";
         });
       } else {
         throw Exception('Failed to load charge items');
@@ -316,6 +313,18 @@ class _ChargeScreenState extends State<ChargeScreen> {
   void _filterChargeItems() {
     // Filter charge items based on selected dates and search text
     // Update _chargeItems accordingly
+    List<ChargeItem> _filteredChargeItems = [];
+    if (!_searchController.text.isEmpty) {
+      for (var i = 0; i < _allChargeItems.length; i++) {
+        if (_allChargeItems[i].chargeDetails.contains(_searchController.text)) {
+          _filteredChargeItems.add(_allChargeItems[i]);
+        }
+      }
+    }
+    if(_fromDate.)
+    setState(() {
+      _chargeItems = _filteredChargeItems;
+    });
   }
 }
 
