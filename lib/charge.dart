@@ -321,7 +321,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
         }
       }
     }
-    if(_fromDate.)
+    //if(_fromDate.)
     setState(() {
       _chargeItems = _filteredChargeItems;
     });
