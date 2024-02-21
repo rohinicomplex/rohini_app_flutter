@@ -1,4 +1,24 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'storage.dart';
+
+class User {
+  final String id;
+  final String name;
+
+  User({
+    required this.id,
+    required this.name,
+  });
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['VALUE'],
+      name: json['LABEL'],
+    );
+  }
+}
 
 class ChargeScreen extends StatefulWidget {
   @override
@@ -6,14 +26,20 @@ class ChargeScreen extends StatefulWidget {
 }
 
 class _ChargeScreenState extends State<ChargeScreen> {
-  String _selectedUser = '';
+  String _selectedUserId = '';
+  List<User> _users = [];
   DateTime? _fromDate;
   DateTime? _toDate;
-  List<String> _userNames = [
-    'John Doe',
-    'Jane Smith',
-    'Michael Johnson'
-  ]; // Sample user names
+  TextEditingController _searchController = TextEditingController();
+  List<ChargeItem> _chargeItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUsers();
+
+    _fetchChargeItems("0");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,21 +67,19 @@ class _ChargeScreenState extends State<ChargeScreen> {
               },
             ),
             ListTile(
-              title: Text('Sort'),
-              onTap: () {
-                _showSortOptions(context);
-              },
-            ),
-            ListTile(
               title: Row(
                 children: [
                   Icon(Icons.search),
                   SizedBox(width: 10),
                   Expanded(
                     child: TextField(
+                      controller: _searchController,
                       decoration: InputDecoration(
                         hintText: 'Search',
                       ),
+                      onChanged: (text) {
+                        setState(() {}); // Trigger rebuild on text change
+                      },
                     ),
                   ),
                 ],
@@ -82,12 +106,14 @@ class _ChargeScreenState extends State<ChargeScreen> {
               ),
             ),
             SizedBox(height: 20.0),
-            _selectedUser.isNotEmpty
+            _selectedUserId.isNotEmpty
                 ? Expanded(
                     child: ListView.builder(
-                      itemCount: 5, // Number of charges
+                      itemCount: _chargeItems.length,
                       itemBuilder: (context, index) {
-                        return ChargeItem();
+                        return ChargeItemWidget(
+                          chargeItem: _chargeItems[index],
+                        );
                       },
                     ),
                   )
@@ -103,12 +129,13 @@ class _ChargeScreenState extends State<ChargeScreen> {
       context: context,
       builder: (BuildContext context) {
         return ListView(
-          children: _userNames.map((user) {
+          children: _users.map((user) {
             return ListTile(
-              title: Text(user),
+              title: Text(user.name),
               onTap: () {
                 setState(() {
-                  _selectedUser = user;
+                  _selectedUserId = user.id;
+                  _fetchChargeItems(user.id);
                 });
                 Navigator.pop(context); // Close the bottom sheet
               },
@@ -189,60 +216,10 @@ class _ChargeScreenState extends State<ChargeScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                // Add filter by date logic here
+                _filterChargeItems();
                 Navigator.of(context).pop();
               },
               child: Text('Filter'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showSortOptions(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Sort'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Row(
-                  children: [
-                    Text('Ascending'),
-                    SizedBox(width: 10),
-                    Icon(Icons.arrow_upward),
-                  ],
-                ),
-                onTap: () {
-                  // Add ascending sort logic here
-                  Navigator.of(context).pop();
-                },
-              ),
-              ListTile(
-                title: Row(
-                  children: [
-                    Text('Descending'),
-                    SizedBox(width: 10),
-                    Icon(Icons.arrow_downward),
-                  ],
-                ),
-                onTap: () {
-                  // Add descending sort logic here
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
             ),
           ],
         );
@@ -277,24 +254,117 @@ class _ChargeScreenState extends State<ChargeScreen> {
       });
     }
   }
+
+  void _fetchUsers() async {
+    String user = await LocalAppStorage().getUserName();
+    String token = await LocalAppStorage().getToken();
+    Map<String, String> requestHeaders = {'token': token, 'usertk': user};
+
+//var map = new Map<String, String>();
+
+    final response = await http.get(
+        Uri.parse('https://rohinicomplex.in/service/allnames.php'),
+        headers: requestHeaders);
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      setState(() {
+        _users = data.map((json) => User.fromJson(json)).toList();
+      });
+    } else {
+      throw Exception('Failed to load users');
+    }
+  }
+
+  void _fetchChargeItems(String selUser) async {
+    String user = await LocalAppStorage().getUserName();
+    String token = await LocalAppStorage().getToken();
+    Map<String, String> requestHeaders = {'token': token, 'usertk': user};
+
+    var map = new Map<String, String>();
+    map['userName'] = user;
+    print(selUser);
+    if (selUser != "0") {
+      print("test");
+      map['userID'] = selUser;
+    }
+
+    /* final response = await http.post(
+      Uri.parse('https://rohinicomplex.in/service/getMAllCharges.php'),
+      headers: requestHeaders,
+      body: map,
+    );
+    if (response.statusCode == 200) */
+    {
+      final List<dynamic> data = jsonDecode(
+          '[{"SLNO":"4040","INVDATE":"2024-02-01","DUEDATE":"2024-02-29","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4105","INVDATE":"2024-03-01","DUEDATE":"2024-03-31","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4168","INVDATE":"2024-04-01","DUEDATE":"2024-04-30","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4238","INVDATE":"2024-05-01","DUEDATE":"2024-05-31","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4302","INVDATE":"2024-06-01","DUEDATE":"2024-06-30","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4366","INVDATE":"2024-07-01","DUEDATE":"2024-07-31","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4430","INVDATE":"2024-08-01","DUEDATE":"2024-08-31","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4494","INVDATE":"2024-09-01","DUEDATE":"2024-09-30","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4559","INVDATE":"2024-10-01","DUEDATE":"2024-10-31","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4622","INVDATE":"2024-11-01","DUEDATE":"2024-11-30","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4704","INVDATE":"2024-12-01","DUEDATE":"2024-12-31","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4767","INVDATE":"2025-01-01","DUEDATE":"2025-01-31","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"},{"SLNO":"4836","INVDATE":"2025-02-01","DUEDATE":"2025-02-28","FACILITYMAPID":null,"ASSETID":"5","AMOUNT":"1,455.00","CHARGEDETAILS":"FlatMaintenanceA301","USERID":"15","USERNAME":"Surajit1","PAID":"0.00","WF":"0.00","DUEAMOUNT":"1,455.00","PAYSTATUS":"Unpaid"}]');
+      setState(() {
+        print(data);
+        _chargeItems = data.map((json) => ChargeItem.fromJson(json)).toList();
+      });
+    } /*else {
+      throw Exception('Failed to load charge items');
+    }*/
+  }
+
+  void _filterChargeItems() {
+    // Filter charge items based on selected dates and search text
+    // Update _chargeItems accordingly
+  }
 }
 
-class ChargeItem extends StatelessWidget {
+class ChargeItem {
+  final String invoiceDate;
+  final double amountDue;
+  final String chargeDetails;
+  final String paymentStatus;
+  final String dueDate;
+  final String chargeId;
+  final double amount;
+
+  ChargeItem({
+    required this.invoiceDate,
+    required this.amountDue,
+    required this.chargeDetails,
+    required this.paymentStatus,
+    required this.dueDate,
+    required this.chargeId,
+    required this.amount,
+  });
+
+  factory ChargeItem.fromJson(Map<String, dynamic> json) {
+    print("test666");
+    return ChargeItem(
+      invoiceDate: json['INVDATE'],
+      amountDue: json['DUEAMOUNT'],
+      chargeDetails: json['CHARGEDETAILS'],
+      paymentStatus: json['PAYSTATUS'],
+      dueDate: json['DUEDATE'],
+      chargeId: json['SLNO'],
+      amount: json['AMOUNT'],
+    );
+  }
+}
+
+class ChargeItemWidget extends StatelessWidget {
+  final ChargeItem chargeItem;
+
+  ChargeItemWidget({required this.chargeItem});
+
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: EdgeInsets.symmetric(vertical: 8.0),
       child: ListTile(
-        title: Text('Invoice Date: ${DateTime.now().toString()}'),
+        title: Text('Invoice Date: ${chargeItem.invoiceDate}'),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Amount Due: \$100.00'),
-            Text('Charge Details: Sample Charge'),
-            Text('Payment Status: Pending'),
-            Text('Due Date: ${DateTime.now().toString()}'),
-            Text('Charge ID#: ABC123'),
-            Text('Amount: \$100.00'),
+            Text('Amount Due: \$${chargeItem.amountDue}'),
+            Text('Charge Details: ${chargeItem.chargeDetails}'),
+            Text('Payment Status: ${chargeItem.paymentStatus}'),
+            Text('Due Date: ${chargeItem.dueDate}'),
+            Text('Charge ID#: ${chargeItem.chargeId}'),
+            Text('Amount: \$${chargeItem.amount}'),
           ],
         ),
         trailing: ElevatedButton(
