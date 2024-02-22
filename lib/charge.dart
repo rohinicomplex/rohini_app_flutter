@@ -314,7 +314,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
     if (_fromDate != null) {
       var k = DateUtils.dateOnly(_fromDate as DateTime);
 
-      for (var i = _filteredChargeItems.length - 1; i > 0; i--) {
+      for (var i = _filteredChargeItems.length - 1; i >= 0; i--) {
         if (dateFormat.parse(_filteredChargeItems[i].invoiceDate).isBefore(k)) {
           _filteredChargeItems.remove(_filteredChargeItems[i]);
         }
@@ -324,7 +324,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
     if (_toDate != null) {
       var k = DateUtils.dateOnly(_toDate as DateTime);
 
-      for (var i = _filteredChargeItems.length - 1; i > 0; i--) {
+      for (var i = _filteredChargeItems.length - 1; i >= 0; i--) {
         if (dateFormat.parse(_filteredChargeItems[i].invoiceDate).isAfter(k)) {
           _filteredChargeItems.remove(_filteredChargeItems[i]);
         }
