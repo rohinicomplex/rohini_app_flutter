@@ -32,6 +32,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
   DateTime? _fromDate;
   DateTime? _toDate;
   String _searchText = '';
+  String _buttonTxt = 'Select User';
 
   TextEditingController _searchController = TextEditingController();
   List<ChargeItem> _chargeItems = [];
@@ -165,7 +166,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
                 _showUserSelection(context);
               },
               child: Text(
-                'Select User',
+                _buttonTxt,
                 style: TextStyle(fontSize: 18.0), // Increased font size
               ),
             ),
@@ -199,6 +200,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
               onTap: () {
                 setState(() {
                   _selectedUserId = user.id;
+                  _buttonTxt = user.name;
                   _fetchChargeItems(user.id);
                 });
                 Navigator.pop(context); // Close the bottom sheet
