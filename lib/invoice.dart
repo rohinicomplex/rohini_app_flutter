@@ -1,4 +1,25 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'storage.dart';
+
+class User {
+  final String id;
+  final String name;
+
+  User({
+    required this.id,
+    required this.name,
+  });
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['VALUE'],
+      name: json['LABEL'],
+    );
+  }
+}
 
 class InvoiceScreen extends StatefulWidget {
   @override
@@ -6,14 +27,24 @@ class InvoiceScreen extends StatefulWidget {
 }
 
 class _InvoiceScreenState extends State<InvoiceScreen> {
-  String _selectedUser = '';
+  String _selectedUserId = '';
+  List<User> _users = [];
   DateTime? _fromDate;
   DateTime? _toDate;
-  List<String> _userNames = [
-    'John Doe',
-    'Jane Smith',
-    'Michael Johnson'
-  ]; // Sample user names
+  String _searchText = '';
+  String _buttonTxt = 'Select User';
+
+  TextEditingController _searchController = TextEditingController();
+  List<InvoiceItem> _invoiceItems = [];
+  List<InvoiceItem> _allInvoiceItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUsers();
+
+    _fetchInvoiceItems("0");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +58,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
           children: <Widget>[
             DrawerHeader(
               child: Text(
-                'Refine',
+                'Filter',
                 style: TextStyle(color: Colors.white, fontSize: 20),
               ),
               decoration: BoxDecoration(
@@ -35,34 +66,92 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
               ),
             ),
             ListTile(
-              title: Text('Filter by Date'),
-              onTap: () {
-                _showDateFilter(context);
-              },
-            ),
-            ListTile(
-              title: Text('Sort'),
-              onTap: () {
-                _showSortOptions(context);
-              },
+              title: Row(
+                children: [
+                  Text('From Date:'),
+                  SizedBox(width: 10),
+                  _fromDate != null
+                      ? TextButton.icon(
+                          onPressed: () {
+                            _pickFromDate(context);
+                          },
+                          icon: Icon(Icons.calendar_today),
+                          label: Text(
+                            '${_fromDate!.day}/${_fromDate!.month}/${_fromDate!.year}',
+                          ),
+                        )
+                      : TextButton.icon(
+                          onPressed: () {
+                            _pickFromDate(context);
+                          },
+                          icon: Icon(Icons.calendar_today),
+                          label: Text('Select'),
+                        ),
+                ],
+              ),
             ),
             ListTile(
               title: Row(
                 children: [
-                  Icon(Icons.search),
+                  Text('To Date:'),
                   SizedBox(width: 10),
-                  Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Search',
-                      ),
-                    ),
-                  ),
+                  _toDate != null
+                      ? TextButton.icon(
+                          onPressed: () {
+                            _pickToDate(context);
+                          },
+                          icon: Icon(Icons.calendar_today),
+                          label: Text(
+                            '${_toDate!.day}/${_toDate!.month}/${_toDate!.year}',
+                          ),
+                        )
+                      : TextButton.icon(
+                          onPressed: () {
+                            _pickToDate(context);
+                          },
+                          icon: Icon(Icons.calendar_today),
+                          label: Text('Select'),
+                        ),
                 ],
               ),
-              onTap: () {
-                // Add search logic here
-              },
+            ),
+            ListTile(
+              title: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Search',
+                ),
+                controller: _searchController,
+                onChanged: (value) {
+                  setState(() {
+                    _searchText = value;
+                  });
+                },
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    // Add filter logic here
+                    _filterInvoiceItems();
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Filter'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _fromDate = null;
+                      _toDate = null;
+                      _searchText = '';
+                      _searchController.text = '';
+                      _filterInvoiceItems();
+                    });
+                  },
+                  child: Text('Reset'),
+                ),
+              ],
             ),
           ],
         ),
@@ -77,17 +166,19 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                 _showUserSelection(context);
               },
               child: Text(
-                'Select User',
+                _buttonTxt,
                 style: TextStyle(fontSize: 18.0), // Increased font size
               ),
             ),
             SizedBox(height: 20.0),
-            _selectedUser.isNotEmpty
+            _selectedUserId.isNotEmpty
                 ? Expanded(
                     child: ListView.builder(
-                      itemCount: 5, // Number of invoices
+                      itemCount: _invoiceItems.length,
                       itemBuilder: (context, index) {
-                        return InvoiceItem();
+                        return InvoiceItemWidget(
+                          chargeItem: _invoiceItems[index],
+                        );
                       },
                     ),
                   )
@@ -103,148 +194,19 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
       context: context,
       builder: (BuildContext context) {
         return ListView(
-          children: _userNames.map((user) {
+          children: _users.map((user) {
             return ListTile(
-              title: Text(user),
+              title: Text(user.name),
               onTap: () {
                 setState(() {
-                  _selectedUser = user;
+                  _selectedUserId = user.id;
+                  _buttonTxt = user.name;
+                  _fetchInvoiceItems(user.id);
                 });
                 Navigator.pop(context); // Close the bottom sheet
               },
             );
           }).toList(),
-        );
-      },
-    );
-  }
-
-  void _showDateFilter(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Filter by Date'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Row(
-                  children: [
-                    Text('From Date:'),
-                    SizedBox(width: 10),
-                    _fromDate != null
-                        ? TextButton.icon(
-                            onPressed: () {
-                              _pickFromDate(context);
-                            },
-                            icon: Icon(Icons.calendar_today),
-                            label: Text(
-                              '${_fromDate!.day}/${_fromDate!.month}/${_fromDate!.year}',
-                            ),
-                          )
-                        : TextButton.icon(
-                            onPressed: () {
-                              _pickFromDate(context);
-                            },
-                            icon: Icon(Icons.calendar_today),
-                            label: Text('Select'),
-                          ),
-                  ],
-                ),
-              ),
-              ListTile(
-                title: Row(
-                  children: [
-                    Text('To Date:'),
-                    SizedBox(width: 10),
-                    _toDate != null
-                        ? TextButton.icon(
-                            onPressed: () {
-                              _pickToDate(context);
-                            },
-                            icon: Icon(Icons.calendar_today),
-                            label: Text(
-                              '${_toDate!.day}/${_toDate!.month}/${_toDate!.year}',
-                            ),
-                          )
-                        : TextButton.icon(
-                            onPressed: () {
-                              _pickToDate(context);
-                            },
-                            icon: Icon(Icons.calendar_today),
-                            label: Text('Select'),
-                          ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Add filter by date logic here
-                Navigator.of(context).pop();
-              },
-              child: Text('Filter'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showSortOptions(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Sort'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Row(
-                  children: [
-                    Text('Ascending'),
-                    SizedBox(width: 10),
-                    Icon(Icons.arrow_upward),
-                  ],
-                ),
-                onTap: () {
-                  // Add ascending sort logic here
-                  Navigator.of(context).pop();
-                },
-              ),
-              ListTile(
-                title: Row(
-                  children: [
-                    Text('Descending'),
-                    SizedBox(width: 10),
-                    Icon(Icons.arrow_downward),
-                  ],
-                ),
-                onTap: () {
-                  // Add descending sort logic here
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-          ],
         );
       },
     );
@@ -277,9 +239,144 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
       });
     }
   }
+
+  void _fetchUsers() async {
+    String user = await LocalAppStorage().getUserName();
+    String token = await LocalAppStorage().getToken();
+    Map<String, String> requestHeaders = {'token': token, 'usertk': user};
+
+//var map = new Map<String, String>();
+
+    final response = await http.get(
+        Uri.parse('https://rohinicomplex.in/service/allnames.php'),
+        headers: requestHeaders);
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      setState(() {
+        _users = data.map((json) => User.fromJson(json)).toList();
+      });
+    } else {
+      throw Exception('Failed to load users');
+    }
+  }
+
+  void _fetchInvoiceItems(String selUser) async {
+    String user = await LocalAppStorage().getUserName();
+    String token = await LocalAppStorage().getToken();
+    Map<String, String> requestHeaders = {'token': token, 'usertk': user};
+
+    var map = new Map<String, String>();
+    map['userName'] = user;
+
+    var _url = 'https://rohinicomplex.in/service/getBillByUserName.php';
+    if (selUser != "0") {
+      // print("test");
+      map['userID'] = selUser;
+      _url = 'https://rohinicomplex.in/service/getBillByUserID.php';
+    } else {
+      _selectedUserId = "0";
+    }
+    try {
+      final response = await http.post(
+        Uri.parse(_url),
+        headers: requestHeaders,
+        body: map,
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          _allInvoiceItems =
+              data.map((json) => InvoiceItem.fromJson(json)).toList();
+          _invoiceItems = _allInvoiceItems;
+
+          _fromDate = null;
+          _toDate = null;
+          _searchText = '';
+          _searchController.text = '';
+        });
+      } else {
+        throw Exception('Failed to load charge items');
+      }
+    } catch (e) {}
+  }
+
+  void _filterInvoiceItems() {
+    // Filter charge items based on selected dates and search text
+    // Update _chargeItems accordingly
+    List<InvoiceItem> _filteredChargeItems = [];
+
+    if (!_searchText.isEmpty) {
+      for (var i = 0; i < _allInvoiceItems.length; i++) {
+        if (_allInvoiceItems[i].refNo.contains(_searchController.text)) {
+          _filteredChargeItems.add(_allInvoiceItems[i]);
+        }
+      }
+    } else {
+      _filteredChargeItems.addAll(_allInvoiceItems);
+    }
+    var dateFormat = DateFormat('yyyy-MM-dd');
+    if (_fromDate != null) {
+      var k = DateUtils.dateOnly(_fromDate as DateTime);
+
+      for (var i = _filteredChargeItems.length - 1; i >= 0; i--) {
+        if (dateFormat.parse(_filteredChargeItems[i].paymentDate).isBefore(k)) {
+          _filteredChargeItems.remove(_filteredChargeItems[i]);
+        }
+      }
+    }
+
+    if (_toDate != null) {
+      var k = DateUtils.dateOnly(_toDate as DateTime);
+
+      for (var i = _filteredChargeItems.length - 1; i >= 0; i--) {
+        if (dateFormat.parse(_filteredChargeItems[i].paymentDate).isAfter(k)) {
+          _filteredChargeItems.remove(_filteredChargeItems[i]);
+        }
+      }
+    }
+    setState(() {
+      _invoiceItems = _filteredChargeItems;
+    });
+  }
 }
 
-class InvoiceItem extends StatelessWidget {
+class InvoiceItem {
+  final String paymentDate;
+  final String ebillNo;
+  final String refNo;
+  final String paymentStatus;
+  final String vide;
+  final String billDate;
+  final String amount;
+
+  InvoiceItem({
+    required this.paymentDate,
+    required this.ebillNo,
+    required this.refNo,
+    required this.paymentStatus,
+    required this.vide,
+    required this.billDate,
+    required this.amount,
+  });
+
+  factory InvoiceItem.fromJson(Map<String, dynamic> json) {
+    return InvoiceItem(
+      paymentDate: json['PAYMENTDATE'],
+      ebillNo: json['EBILLNO'],
+      refNo: json['REFNO'],
+      paymentStatus: json['STATUS'],
+      vide: json['VIDE'],
+      billDate: json['BILLDATE'],
+      amount: json['AMOUNT'],
+    );
+  }
+}
+
+class InvoiceItemWidget extends StatelessWidget {
+  final InvoiceItem chargeItem;
+
+  InvoiceItemWidget({required this.chargeItem});
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -288,16 +385,16 @@ class InvoiceItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
-            title: Text('Payment Date: ${DateTime.now().toString()}'),
+            title: Text('Payment Date: ${chargeItem.paymentDate}'),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Amount: \$100.00'),
-                Text('E Bill No: 123456'),
-                Text('Bill Date: ${DateTime.now().toString()}'),
-                Text('Vide: Sample'),
-                Text('Ref. No: ABC123'),
-                Text('Status: Pending'),
+                Text('Amount: \u{20B9}${chargeItem.amount}'),
+                Text('E Bill No: ${chargeItem.ebillNo}'),
+                Text('Bill Date: ${chargeItem.billDate}'),
+                Text('Vide: ${chargeItem.vide}'),
+                Text('Ref. No: ${chargeItem.refNo}'),
+                Text('Status: ${chargeItem.paymentStatus}'),
               ],
             ),
           ),
