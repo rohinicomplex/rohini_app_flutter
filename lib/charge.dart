@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'storage.dart';
 
 class User {
@@ -30,6 +31,8 @@ class _ChargeScreenState extends State<ChargeScreen> {
   List<User> _users = [];
   DateTime? _fromDate;
   DateTime? _toDate;
+  String _searchText = '';
+
   TextEditingController _searchController = TextEditingController();
   List<ChargeItem> _chargeItems = [];
   List<ChargeItem> _allChargeItems = [];
@@ -54,7 +57,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
           children: <Widget>[
             DrawerHeader(
               child: Text(
-                'Refine',
+                'Filter',
                 style: TextStyle(color: Colors.white, fontSize: 20),
               ),
               decoration: BoxDecoration(
@@ -62,32 +65,92 @@ class _ChargeScreenState extends State<ChargeScreen> {
               ),
             ),
             ListTile(
-              title: Text('Filter by Date'),
-              onTap: () {
-                _showDateFilter(context);
-              },
+              title: Row(
+                children: [
+                  Text('From Date:'),
+                  SizedBox(width: 10),
+                  _fromDate != null
+                      ? TextButton.icon(
+                          onPressed: () {
+                            _pickFromDate(context);
+                          },
+                          icon: Icon(Icons.calendar_today),
+                          label: Text(
+                            '${_fromDate!.day}/${_fromDate!.month}/${_fromDate!.year}',
+                          ),
+                        )
+                      : TextButton.icon(
+                          onPressed: () {
+                            _pickFromDate(context);
+                          },
+                          icon: Icon(Icons.calendar_today),
+                          label: Text('Select'),
+                        ),
+                ],
+              ),
             ),
             ListTile(
               title: Row(
                 children: [
-                  Icon(Icons.search),
+                  Text('To Date:'),
                   SizedBox(width: 10),
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: 'Search',
-                      ),
-                      onChanged: (text) {
-                        setState(() {}); // Trigger rebuild on text change
-                      },
-                    ),
-                  ),
+                  _toDate != null
+                      ? TextButton.icon(
+                          onPressed: () {
+                            _pickToDate(context);
+                          },
+                          icon: Icon(Icons.calendar_today),
+                          label: Text(
+                            '${_toDate!.day}/${_toDate!.month}/${_toDate!.year}',
+                          ),
+                        )
+                      : TextButton.icon(
+                          onPressed: () {
+                            _pickToDate(context);
+                          },
+                          icon: Icon(Icons.calendar_today),
+                          label: Text('Select'),
+                        ),
                 ],
               ),
-              onTap: () {
-                // Add search logic here
-              },
+            ),
+            ListTile(
+              title: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Search',
+                ),
+                controller: _searchController,
+                onChanged: (value) {
+                  setState(() {
+                    _searchText = value;
+                  });
+                },
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    // Add filter logic here
+                    _filterChargeItems();
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Filter'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _fromDate = null;
+                      _toDate = null;
+                      _searchText = '';
+                      _searchController.text = '';
+                      _filterChargeItems();
+                    });
+                  },
+                  child: Text('Reset'),
+                ),
+              ],
             ),
           ],
         ),
@@ -142,87 +205,6 @@ class _ChargeScreenState extends State<ChargeScreen> {
               },
             );
           }).toList(),
-        );
-      },
-    );
-  }
-
-  void _showDateFilter(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Filter by Date'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Row(
-                  children: [
-                    Text('From Date:'),
-                    SizedBox(width: 10),
-                    _fromDate != null
-                        ? TextButton.icon(
-                            onPressed: () {
-                              _pickFromDate(context);
-                            },
-                            icon: Icon(Icons.calendar_today),
-                            label: Text(
-                              '${_fromDate!.day}/${_fromDate!.month}/${_fromDate!.year}',
-                            ),
-                          )
-                        : TextButton.icon(
-                            onPressed: () {
-                              _pickFromDate(context);
-                            },
-                            icon: Icon(Icons.calendar_today),
-                            label: Text('Select'),
-                          ),
-                  ],
-                ),
-              ),
-              ListTile(
-                title: Row(
-                  children: [
-                    Text('To Date:'),
-                    SizedBox(width: 10),
-                    _toDate != null
-                        ? TextButton.icon(
-                            onPressed: () {
-                              _pickToDate(context);
-                            },
-                            icon: Icon(Icons.calendar_today),
-                            label: Text(
-                              '${_toDate!.day}/${_toDate!.month}/${_toDate!.year}',
-                            ),
-                          )
-                        : TextButton.icon(
-                            onPressed: () {
-                              _pickToDate(context);
-                            },
-                            icon: Icon(Icons.calendar_today),
-                            label: Text('Select'),
-                          ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                _filterChargeItems();
-                Navigator.of(context).pop();
-              },
-              child: Text('Filter'),
-            ),
-          ],
         );
       },
     );
@@ -302,7 +284,11 @@ class _ChargeScreenState extends State<ChargeScreen> {
           _allChargeItems =
               data.map((json) => ChargeItem.fromJson(json)).toList();
           _chargeItems = _allChargeItems;
-          _searchController.text = "";
+
+          _fromDate = null;
+          _toDate = null;
+          _searchText = '';
+          _searchController.text = '';
         });
       } else {
         throw Exception('Failed to load charge items');
@@ -314,14 +300,34 @@ class _ChargeScreenState extends State<ChargeScreen> {
     // Filter charge items based on selected dates and search text
     // Update _chargeItems accordingly
     List<ChargeItem> _filteredChargeItems = [];
-    if (!_searchController.text.isEmpty) {
+
+    if (!_searchText.isEmpty) {
       for (var i = 0; i < _allChargeItems.length; i++) {
         if (_allChargeItems[i].chargeDetails.contains(_searchController.text)) {
           _filteredChargeItems.add(_allChargeItems[i]);
         }
       }
+    } else {
+      _filteredChargeItems.addAll(_allChargeItems);
     }
-    //if(_fromDate.)
+    var dateFormat = DateFormat('yyyy-MM-dd');
+    if (_fromDate != null) {
+      var k = DateUtils.dateOnly(_fromDate as DateTime);
+      for (var i = _filteredChargeItems.length; i > 0; i--) {
+        if (dateFormat.parse(_filteredChargeItems[i].invoiceDate).isBefore(k)) {
+          _filteredChargeItems.remove(_filteredChargeItems[i]);
+        }
+      }
+    }
+
+    if (_toDate != null) {
+      var k = DateUtils.dateOnly(_toDate as DateTime);
+      for (var i = _filteredChargeItems.length; i > 0; i--) {
+        if (dateFormat.parse(_filteredChargeItems[i].invoiceDate).isAfter(k)) {
+          _filteredChargeItems.remove(_filteredChargeItems[i]);
+        }
+      }
+    }
     setState(() {
       _chargeItems = _filteredChargeItems;
     });
