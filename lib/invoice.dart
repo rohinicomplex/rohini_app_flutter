@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'storage.dart';
+import 'package:flutter_file_downloader/flutter_file_downloader.dart';
 
 class User {
   final String id;
@@ -348,7 +349,8 @@ class InvoiceItem {
   final String vide;
   final String billDate;
   final String amount;
-
+  final String userid;
+  final String payid;
   InvoiceItem({
     required this.paymentDate,
     required this.ebillNo,
@@ -357,6 +359,8 @@ class InvoiceItem {
     required this.vide,
     required this.billDate,
     required this.amount,
+    required this.userid,
+    required this.payid,
   });
 
   factory InvoiceItem.fromJson(Map<String, dynamic> json) {
@@ -368,6 +372,8 @@ class InvoiceItem {
       vide: json['VIDE'],
       billDate: json['BILLDATE'],
       amount: json['AMOUNT'],
+      userid: json['USERID'],
+      payid: json['PAYID'],
     );
   }
 }
@@ -398,25 +404,39 @@ class InvoiceItemWidget extends StatelessWidget {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(
-                bottom: 8.0), // Adjust the padding as needed
-            child: ElevatedButton(
-              onPressed: () {
-                // Logic to download receipt
-                _downloadReceipt(context);
-              },
-              child: Text('Download Receipt'),
-            ),
-          ),
+          chargeItem.paymentStatus == 'APPROVED'
+              ? Padding(
+                  padding: const EdgeInsets.only(
+                      bottom: 8.0), // Adjust the padding as needed
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Logic to download receipt
+
+                      _downloadReceipt(context, chargeItem.ebillNo,
+                          chargeItem.payid, chargeItem.userid);
+                    },
+                    child: Text('Download Receipt'),
+                  ),
+                )
+              : Container(),
         ],
       ),
     );
   }
 
-  void _downloadReceipt(BuildContext context) {
+  void _downloadReceipt(BuildContext context, billid, payid, userid) {
     // Logic to download receipt
     // This function could navigate to a page to download the receipt or perform other actions.
-    print('Receipt downloaded');
+    String s = 'https://rohinicomplex.in/download/downloadMyBill.php?p=' +
+        payid +
+        '-' +
+        userid +
+        '-' +
+        billid;
+    FileDownloader.downloadFile(
+        url: s,
+        name: "EBill-" + billid + ".pdf",
+        downloadDestination: DownloadDestinations.appFiles,
+        notificationType: NotificationType.all);
   }
 }
