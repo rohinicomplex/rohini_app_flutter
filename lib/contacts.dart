@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+void main() {
+  runApp(MaterialApp(
+    home: ContactsScreen(),
+  ));
+}
+
 class ContactsScreen extends StatefulWidget {
   @override
   _ContactsScreenState createState() => _ContactsScreenState();
@@ -25,10 +31,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
     ),
   ];
 
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _phoneNumberController = TextEditingController();
-  PhoneType _selectedPhoneType = PhoneType.mobile;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,6 +54,9 @@ class _ContactsScreenState extends State<ContactsScreen> {
                       ))
                   .toList(),
             ),
+            onTap: () {
+              _navigateToContactDetail(context, _contacts[index]);
+            },
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -67,18 +72,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
                     _launchURL('sms:${_contacts[index].mobileNumber}');
                   },
                 ),
-                IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: () {
-                    _editContact(context, index);
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.delete),
-                  onPressed: () {
-                    _confirmDeleteContact(context, index);
-                  },
-                ),
               ],
             ),
           );
@@ -86,170 +79,170 @@ class _ContactsScreenState extends State<ContactsScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          _addContact(context);
+          _navigateToAddContact(context);
         },
         child: Icon(Icons.add),
       ),
     );
   }
 
-  void _addContact(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Add Contact'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: 'Name',
-                ),
-              ),
-              TextField(
-                controller: _phoneNumberController,
-                decoration: InputDecoration(
-                  labelText: 'Phone Number',
-                ),
-              ),
-              DropdownButtonFormField(
-                value: _selectedPhoneType,
-                items: PhoneType.values.map((type) {
-                  return DropdownMenuItem(
-                    value: type,
-                    child: Text(type.toString().split('.').last),
-                  );
-                }).toList(),
-                onChanged: (type) {
-                  setState(() {
-                    _selectedPhoneType = type as PhoneType;
-                  });
-                },
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
+  void _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  void _navigateToAddContact(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AddContactScreen()),
+    ).then((value) {
+      if (value != null && value is Contact) {
+        setState(() {
+          _contacts.add(value);
+        });
+      }
+    });
+  }
+
+  void _navigateToContactDetail(BuildContext context, Contact contact) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ContactDetailScreen(contact)),
+    );
+  }
+}
+
+class AddContactScreen extends StatefulWidget {
+  @override
+  _AddContactScreenState createState() => _AddContactScreenState();
+}
+
+class _AddContactScreenState extends State<AddContactScreen> {
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _phoneNumberController = TextEditingController();
+  PhoneType _selectedPhoneType = PhoneType.mobile;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Add Contact'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(labelText: 'Name'),
             ),
+            TextField(
+              controller: _phoneNumberController,
+              decoration: InputDecoration(labelText: 'Phone Number'),
+            ),
+            DropdownButtonFormField(
+              value: _selectedPhoneType,
+              items: PhoneType.values.map((type) {
+                return DropdownMenuItem(
+                  value: type,
+                  child: Text(type.toString().split('.').last),
+                );
+              }).toList(),
+              onChanged: (type) {
+                setState(() {
+                  _selectedPhoneType = type as PhoneType;
+                });
+              },
+            ),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                _saveContact();
-                Navigator.of(context).pop();
+                _saveContact(context);
               },
               child: Text('Save'),
             ),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 
-  void _saveContact() {
+  void _saveContact(BuildContext context) {
     String name = _nameController.text.trim();
     String phoneNumber = _phoneNumberController.text.trim();
 
     if (name.isNotEmpty && phoneNumber.isNotEmpty) {
-      setState(() {
-        _contacts.add(
-          Contact(
-            name: name,
-            phoneNumbers: [
-              PhoneNumber(number: phoneNumber, type: _selectedPhoneType),
-            ],
-          ),
-        );
-        _nameController.clear();
-        _phoneNumberController.clear();
-        _selectedPhoneType = PhoneType.mobile; // Reset selected phone type
-      });
+      Navigator.pop(
+        context,
+        Contact(
+          name: name,
+          phoneNumbers: [
+            PhoneNumber(number: phoneNumber, type: _selectedPhoneType),
+          ],
+        ),
+      );
     }
   }
+}
 
-  void _editContact(BuildContext context, int index) {
-    _nameController.text = _contacts[index].name;
-    _phoneNumberController.text = _contacts[index].mobileNumber;
-    _selectedPhoneType = _contacts[index].mobileNumberType;
+class ContactDetailScreen extends StatelessWidget {
+  final Contact contact;
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Edit Contact'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: 'Name',
-                ),
-              ),
-              TextField(
-                controller: _phoneNumberController,
-                decoration: InputDecoration(
-                  labelText: 'Phone Number',
-                ),
-              ),
-              DropdownButtonFormField(
-                value: _selectedPhoneType,
-                items: PhoneType.values.map((type) {
-                  return DropdownMenuItem(
-                    value: type,
-                    child: Text(type.toString().split('.').last),
-                  );
-                }).toList(),
-                onChanged: (type) {
-                  setState(() {
-                    _selectedPhoneType = type as PhoneType;
-                  });
-                },
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
+  ContactDetailScreen(this.contact);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Contact Detail'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Name: ${contact.name}'),
+            SizedBox(height: 10),
+            Text('Phone Numbers:'),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: contact.phoneNumbers
+                  .map(
+                    (phoneNumber) => Text(phoneNumber.toString()),
+                  )
+                  .toList(),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                _editContact(context);
               },
-              child: Text('Cancel'),
+              child: Text('Edit'),
             ),
             ElevatedButton(
               onPressed: () {
-                _updateContact(index);
-                Navigator.of(context).pop();
+                _confirmDeleteContact(context);
               },
-              child: Text('Update'),
+              child: Text('Delete'),
             ),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 
-  void _updateContact(int index) {
-    String name = _nameController.text.trim();
-    String phoneNumber = _phoneNumberController.text.trim();
-
-    if (name.isNotEmpty && phoneNumber.isNotEmpty) {
-      setState(() {
-        _contacts[index].name = name;
-        _contacts[index].phoneNumbers = [
-          PhoneNumber(number: phoneNumber, type: _selectedPhoneType),
-        ];
-        _nameController.clear();
-        _phoneNumberController.clear();
-        _selectedPhoneType = PhoneType.mobile; // Reset selected phone type
-      });
-    }
+  void _editContact(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => EditContactScreen(contact)),
+    );
   }
 
-  void _confirmDeleteContact(BuildContext context, int index) {
+  void _confirmDeleteContact(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -265,8 +258,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                _deleteContact(index);
-                Navigator.of(context).pop();
+                _deleteContact(context);
               },
               child: Text('Delete'),
             ),
@@ -276,17 +268,91 @@ class _ContactsScreenState extends State<ContactsScreen> {
     );
   }
 
-  void _deleteContact(int index) {
-    setState(() {
-      _contacts.removeAt(index);
-    });
+  void _deleteContact(BuildContext context) {
+    Navigator.of(context).pop(contact);
+  }
+}
+
+class EditContactScreen extends StatefulWidget {
+  final Contact contact;
+
+  EditContactScreen(this.contact);
+
+  @override
+  _EditContactScreenState createState() => _EditContactScreenState();
+}
+
+class _EditContactScreenState extends State<EditContactScreen> {
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _phoneNumberController = TextEditingController();
+  PhoneType _selectedPhoneType = PhoneType.mobile;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.text = widget.contact.name;
+    _phoneNumberController.text = widget.contact.phoneNumbers[0].number;
+    _selectedPhoneType = widget.contact.phoneNumbers[0].type;
   }
 
-  Future<void> _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Edit Contact'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(labelText: 'Name'),
+            ),
+            TextField(
+              controller: _phoneNumberController,
+              decoration: InputDecoration(labelText: 'Phone Number'),
+            ),
+            DropdownButtonFormField(
+              value: _selectedPhoneType,
+              items: PhoneType.values.map((type) {
+                return DropdownMenuItem(
+                  value: type,
+                  child: Text(type.toString().split('.').last),
+                );
+              }).toList(),
+              onChanged: (type) {
+                setState(() {
+                  _selectedPhoneType = type as PhoneType;
+                });
+              },
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                _saveContact(context);
+              },
+              child: Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _saveContact(BuildContext context) {
+    String name = _nameController.text.trim();
+    String phoneNumber = _phoneNumberController.text.trim();
+
+    if (name.isNotEmpty && phoneNumber.isNotEmpty) {
+      Contact updatedContact = Contact(
+        name: name,
+        phoneNumbers: [
+          PhoneNumber(number: phoneNumber, type: _selectedPhoneType),
+        ],
+      );
+      Navigator.pop(context, updatedContact);
     }
   }
 }
@@ -304,15 +370,6 @@ class Contact {
       }
     }
     return '';
-  }
-
-  PhoneType get mobileNumberType {
-    for (var phoneNumber in phoneNumbers) {
-      if (phoneNumber.type == PhoneType.mobile) {
-        return phoneNumber.type;
-      }
-    }
-    return PhoneType.mobile;
   }
 }
 
