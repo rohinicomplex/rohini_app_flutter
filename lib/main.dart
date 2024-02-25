@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
         '/event': (context) => CommunityHallBookingScreen(),
         '/ledger': (context) => LedgerScreen(),
         '/contacts': (context) => ContactsScreen(),
-        '/approvals': (context) => ApprovalScreen(),
+        '/approvals': (context) => ActivityApproval(),
         '/settings': (context) => SettingsPage(),
         '/customersel': (context) => CustomerSelectionScreen(),
         '/chargesel': (context) => ChargesSelectionScreen(),

@@ -1,181 +1,185 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'storage.dart';
 
-// Model class to represent the data received from the REST service
-class InvoiceItemDTO {
+class ActivityItemDTO {
   final String activityId;
   final DateTime createDate;
   final String subject;
   final String type;
+  final String description;
 
-  InvoiceItemDTO({
+  ActivityItemDTO({
     required this.activityId,
     required this.createDate,
     required this.subject,
     required this.type,
+    required this.description,
   });
+
+  factory ActivityItemDTO.fromJson(Map<String, dynamic> json) {
+    return ActivityItemDTO(
+      activityId: json['ACTIVITYID'],
+      createDate: DateTime.parse(json['CREATEDON']),
+      subject: json['SUBJECT'],
+      type: json['ACTIVITYTYPECODE'],
+      description: json['DESCRIPTION'],
+    );
+  }
 }
 
-// Sample function to fetch data from REST service
-Future<List<InvoiceItemDTO>> fetchInvoiceItems() async {
-  // Here you would make your HTTP request to fetch the data
-  // For now, I'll just return a sample list of InvoiceItemDTO objects
-  return List.generate(
-    10,
-    (index) => InvoiceItemDTO(
-      activityId: 'Activity #$index',
-      createDate: DateTime.now(),
-      subject: 'Sample Subject',
-      type: 'Sample Type',
-    ),
-  );
+class ActivityApproval extends StatefulWidget {
+  @override
+  _ActivityApprovalState createState() => _ActivityApprovalState();
 }
 
-class ApprovalScreen extends StatelessWidget {
+class _ActivityApprovalState extends State<ActivityApproval> {
+  List<ActivityItemDTO> _activities = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch activities from the server
+    _fetchActivities();
+  }
+
+  Future<void> _fetchActivities() async {
+    String user = await LocalAppStorage().getUserName();
+    String token = await LocalAppStorage().getToken();
+    Map<String, String> requestHeaders = {'token': token, 'usertk': user};
+
+    var map = new Map<String, String>();
+    map['userid'] = user;
+    map['ResultType'] = '2';
+    map['StatusType'] = '2';
+    List<ActivityItemDTO> l = [];
+    try {
+      final response = await http.post(
+        Uri.parse('https://rohinicomplex.in/service/getActivityList.php'),
+        headers: requestHeaders,
+        body: map,
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        l = data.map((json) => ActivityItemDTO.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load charge items');
+      }
+    } catch (e) {}
+    setState(() {
+      // Assigning dummy activities for demonstration
+      _activities = l;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<InvoiceItemDTO>>(
-      future: fetchInvoiceItems(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else {
-          final List<InvoiceItemDTO>? invoiceItems = snapshot.data;
-          return Scaffold(
-            appBar: AppBar(
-              title: Text('Activity Approval'),
-            ),
-            body: ListView.builder(
-              itemCount: invoiceItems!.length,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Activity Approval'),
+      ),
+      body: _activities.isEmpty
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : ListView.builder(
+              itemCount: _activities.length,
               itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            ActivityDetailsScreen(invoiceItems[index]),
-                      ),
-                    );
-                  },
-                  child: ActivityItem(
-                    invoiceItem: invoiceItems[index],
+                var item = _activities[index];
+                return Card(
+                  margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Activity #${item.activityId}'),
+                        SizedBox(height: 8.0),
+                        Text('Create Date: ${item.createDate.toString()}'),
+                        SizedBox(height: 8.0),
+                        Text('Subject: ${item.subject}'),
+                        SizedBox(height: 8.0),
+                        Text('Type: ${item.type}'),
+                        SizedBox(height: 8.0),
+                        Text('Description: ${item.description}'),
+                        SizedBox(height: 16.0),
+                        Row(
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        ActivityDetails(item: item),
+                                  ),
+                                );
+                              },
+                              child: Text('Details'),
+                            ),
+                            Spacer(),
+                            ElevatedButton(
+                              onPressed: () {
+                                _showApproveConfirmationDialog();
+                              },
+                              child: Text('Approve'),
+                            ),
+                            SizedBox(width: 8.0),
+                            ElevatedButton(
+                              onPressed: () {
+                                _showRejectConfirmationDialog(item);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.red,
+                              ),
+                              child: Text('Reject'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
             ),
-          );
-        }
-      },
-    );
-  }
-}
-
-class ActivityItem extends StatelessWidget {
-  final InvoiceItemDTO invoiceItem;
-
-  ActivityItem({required this.invoiceItem});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Activity #${invoiceItem.activityId}'),
-            SizedBox(height: 8.0),
-            Text('Create Date: ${invoiceItem.createDate.toString()}'),
-            SizedBox(height: 8.0),
-            Text('Subject: ${invoiceItem.subject}'),
-            SizedBox(height: 8.0),
-            Text('Type: ${invoiceItem.type}'),
-            SizedBox(height: 16.0),
-            Row(
-              children: [
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.bottomLeft,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Navigate to details page
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  ActivityDetailsScreen(invoiceItem)),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        primary: Theme.of(context).colorScheme.secondary,
-                      ),
-                      child: Text('Details'),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 8.0),
-                ElevatedButton(
-                  onPressed: () {
-                    // Show reject popup
-                    _showRejectPopup(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.red,
-                  ),
-                  child: Text('Reject'),
-                ),
-                SizedBox(width: 8.0),
-                ElevatedButton(
-                  onPressed: () {
-                    // Logic to handle approve action
-                    _refreshList(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.green,
-                  ),
-                  child: Text('Approve'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
     );
   }
 
-  void _showRejectPopup(BuildContext context) {
+  void _showRejectConfirmationDialog(ActivityItemDTO item) {
     TextEditingController commentController = TextEditingController();
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Reject Activity'),
+          title: Text('Confirm Rejection'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              Text('Are you sure you want to reject this activity?'),
               TextField(
                 controller: commentController,
                 decoration: InputDecoration(labelText: 'Comments'),
               ),
             ],
           ),
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                // Logic to handle rejection with comments
-                _refreshList(context);
-              },
-              child: Text('Ok'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context); // Close the dialog
-              },
+          actions: <Widget>[
+            TextButton(
               child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                // Implement your reject logic here
+                String comments = commentController.text;
+                print('Reject button pressed with comments: $comments');
+                // Refresh the list
+                Navigator.of(context).pop();
+              },
             ),
           ],
         );
@@ -183,16 +187,40 @@ class ActivityItem extends StatelessWidget {
     );
   }
 
-  void _refreshList(BuildContext context) {
-    // Logic to refresh the list
-    Navigator.pop(context); // Close the dialog
+  void _showApproveConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Approval'),
+          content: Text('Are you sure you want to approve this activity?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                // Implement your approve logic here
+                print('Approve button pressed');
+                // Refresh the list
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
-class ActivityDetailsScreen extends StatelessWidget {
-  final InvoiceItemDTO invoiceItem;
+class ActivityDetails extends StatelessWidget {
+  final ActivityItemDTO item;
 
-  ActivityDetailsScreen(this.invoiceItem);
+  ActivityDetails({required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -201,17 +229,15 @@ class ActivityDetailsScreen extends StatelessWidget {
         title: Text('Activity Details'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Activity ID: ${invoiceItem.activityId}'),
-            SizedBox(height: 8.0),
-            Text('Create Date: ${invoiceItem.createDate.toString()}'),
-            SizedBox(height: 8.0),
-            Text('Subject: ${invoiceItem.subject}'),
-            SizedBox(height: 8.0),
-            Text('Type: ${invoiceItem.type}'),
+            Text('Activity ID: ${item.activityId}'),
+            Text('Create Date: ${item.createDate.toString()}'),
+            Text('Subject: ${item.subject}'),
+            Text('Type: ${item.type}'),
+            Text('Description: ${item.description}'),
           ],
         ),
       ),
