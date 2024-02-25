@@ -44,6 +44,37 @@ class _ActivityApprovalState extends State<ActivityApproval> {
     _fetchActivities();
   }
 
+  Future<void> _actionOnActivity(id, appr, comm) async {
+    String user = await LocalAppStorage().getUserName();
+    String token = await LocalAppStorage().getToken();
+    Map<String, String> requestHeaders = {'token': token, 'usertk': user};
+
+    var map = new Map<String, String>();
+    map['activityid'] = id;
+    map['comments'] = comm;
+    map['approvalid'] = appr;
+    map['username'] = user;
+    List<ActivityItemDTO> l = [];
+    try {
+      final response = await http.post(
+        Uri.parse('https://rohinicomplex.in/service/approveActivity.php'),
+        headers: requestHeaders,
+        body: map,
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        l = data.map((json) => ActivityItemDTO.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load charge items');
+      }
+    } catch (e) {}
+    setState(() {
+      // Assigning dummy activities for demonstration
+      _activities = l;
+    });
+  }
+
   Future<void> _fetchActivities() async {
     String user = await LocalAppStorage().getUserName();
     String token = await LocalAppStorage().getToken();
