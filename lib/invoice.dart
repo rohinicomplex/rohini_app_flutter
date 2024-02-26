@@ -424,6 +424,20 @@ class InvoiceItemWidget extends StatelessWidget {
     );
   }
 
+  _showMessage(context, String txt) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(txt),
+        action: SnackBarAction(
+          label: 'Close',
+          onPressed: () {
+            // Code to execute.
+          },
+        ),
+      ),
+    );
+  }
+
   void _downloadReceipt(BuildContext context, billid, payid, userid) {
     // Logic to download receipt
     // This function could navigate to a page to download the receipt or perform other actions.
@@ -437,6 +451,12 @@ class InvoiceItemWidget extends StatelessWidget {
         url: s,
         name: "EBill-" + billid + ".pdf",
         downloadDestination: DownloadDestinations.appFiles,
-        notificationType: NotificationType.all);
+        notificationType: NotificationType.all,
+        onDownloadCompleted: (String path) {
+          _showMessage(context, "EBill-" + billid + ".pdf downloaded");
+        },
+        onDownloadError: (String error) {
+          _showMessage(context, "Unable to download file");
+        });
   }
 }
