@@ -44,7 +44,7 @@ class _ActivityApprovalState extends State<ActivityApproval> {
     _fetchActivities();
   }
 
-  Future<void> _actionOnActivity(id, appr, comm) async {
+  Future<void> _actionOnActivity(context, id, appr, comm) async {
     String user = await LocalAppStorage().getUserName();
     String token = await LocalAppStorage().getToken();
     Map<String, String> requestHeaders = {'token': token, 'usertk': user};
@@ -63,16 +63,32 @@ class _ActivityApprovalState extends State<ActivityApproval> {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        l = data.map((json) => ActivityItemDTO.fromJson(json)).toList();
+        final dynamic data = json.decode(response.body);
+        if (data["result"] > 0) {
+          _fetchActivities();
+        } else {
+          _showMessage(context, data["message"]);
+        }
       } else {
         throw Exception('Failed to load charge items');
       }
-    } catch (e) {}
-    setState(() {
-      // Assigning dummy activities for demonstration
-      _activities = l;
-    });
+    } catch (e) {
+      _showMessage(context, e.toString());
+    }
+  }
+
+  _showMessage(context, String txt) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(txt),
+        action: SnackBarAction(
+          label: 'Close',
+          onPressed: () {
+            // Code to execute.
+          },
+        ),
+      ),
+    );
   }
 
   Future<void> _fetchActivities() async {
@@ -82,8 +98,8 @@ class _ActivityApprovalState extends State<ActivityApproval> {
 
     var map = new Map<String, String>();
     map['userid'] = user;
-    map['ResultType'] = '2';
-    map['StatusType'] = '2';
+    map['ResultType'] = '1';
+    map['StatusType'] = '1';
     List<ActivityItemDTO> l = [];
     try {
       final response = await http.post(
@@ -94,11 +110,17 @@ class _ActivityApprovalState extends State<ActivityApproval> {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        l = data.map((json) => ActivityItemDTO.fromJson(json)).toList();
+        if (data.length > 0) {
+          l = data.map((json) => ActivityItemDTO.fromJson(json)).toList();
+        } else {
+          _showMessage(context, 'Enjoy! Nothing to take action');
+        }
       } else {
         throw Exception('Failed to load charge items');
       }
-    } catch (e) {}
+    } catch (e) {
+      _showMessage(context, e.toString());
+    }
     setState(() {
       // Assigning dummy activities for demonstration
       _activities = l;
@@ -138,7 +160,7 @@ class _ActivityApprovalState extends State<ActivityApproval> {
                         SizedBox(height: 16.0),
                         Row(
                           children: [
-                            ElevatedButton(
+                            OutlinedButton(
                               onPressed: () {
                                 Navigator.push(
                                   context,
@@ -148,13 +170,18 @@ class _ActivityApprovalState extends State<ActivityApproval> {
                                   ),
                                 );
                               },
+                              style: OutlinedButton.styleFrom(
+                                  primary: Theme.of(context).primaryColor),
                               child: Text('Details'),
                             ),
                             Spacer(),
                             ElevatedButton(
                               onPressed: () {
-                                _showApproveConfirmationDialog();
+                                _showApproveConfirmationDialog(item);
                               },
+                              style: ElevatedButton.styleFrom(
+                                primary: Theme.of(context).primaryColor,
+                              ),
                               child: Text('Approve'),
                             ),
                             SizedBox(width: 8.0),
@@ -207,6 +234,7 @@ class _ActivityApprovalState extends State<ActivityApproval> {
               onPressed: () {
                 // Implement your reject logic here
                 String comments = commentController.text;
+                _actionOnActivity(context, item.activityId, 3, comments);
                 print('Reject button pressed with comments: $comments');
                 // Refresh the list
                 Navigator.of(context).pop();
@@ -218,7 +246,7 @@ class _ActivityApprovalState extends State<ActivityApproval> {
     );
   }
 
-  void _showApproveConfirmationDialog() {
+  void _showApproveConfirmationDialog(ActivityItemDTO item) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -237,6 +265,7 @@ class _ActivityApprovalState extends State<ActivityApproval> {
               onPressed: () {
                 // Implement your approve logic here
                 print('Approve button pressed');
+                _actionOnActivity(context, item.activityId, 3, 'Approved');
                 // Refresh the list
                 Navigator.of(context).pop();
               },
