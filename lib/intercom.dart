@@ -65,9 +65,9 @@ class _IntercomScreenState extends State<IntercomScreen> {
                                 // Numbers 1 to 9, 0, * and #
                                 String label;
                                 if (index == 9) {
-                                  label = '0';
-                                } else if (index == 10) {
                                   label = '*';
+                                } else if (index == 10) {
+                                  label = '0';
                                 } else if (index == 11) {
                                   label = '#';
                                 } else {
@@ -169,6 +169,7 @@ class _IntercomScreenState extends State<IntercomScreen> {
                                     setState(() {
                                       selectedFloor = 1;
                                     });
+                                    
                                   }),
                                   FloorButton(2, selectedFloor, () {
                                     setState(() {
