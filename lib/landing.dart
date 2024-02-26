@@ -118,44 +118,7 @@ class LandingPage extends StatelessWidget {
                     icon: Icons.account_balance,
                     label: 'Bank Info',
                     onTap: () {
-                      // Navigate to Bank Info screen
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text(
-                              'Bank Info',
-                              style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                              ),
-                            ),
-                            content: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                _buildBankInfoRow('Account Name',
-                                    'ROHINI COMPLEX FLAT OWNERS ASSOCIATION'),
-                                _buildBankInfoRow(
-                                    'Account Number', '00000035088967363'),
-                                _buildBankInfoRow(
-                                    'Bank Name', 'State Bank of India'),
-                                _buildBankInfoRow('Account Type', 'Savings'),
-                                _buildBankInfoRow('IFS Code', 'SBIN0012384'),
-                                _buildBankInfoRow(
-                                    'Branch', 'RAJARHAT TOWNSHIP'),
-                              ],
-                            ),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text('Close'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
+                      Navigator.pushNamed(context, '/bankinfo');
                     },
                   ),
                   NavigationButton(

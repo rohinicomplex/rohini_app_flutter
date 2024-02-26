@@ -18,6 +18,7 @@ import 'notification.dart';
 import 'service.dart';
 import 'intercom.dart';
 import 'storage.dart';
+import 'bankinfo.dart';
 
 void main() {
   runApp(MyApp());
@@ -51,6 +52,7 @@ class MyApp extends StatelessWidget {
         '/settings': (context) => SettingsPage(),
         '/customersel': (context) => CustomerSelectionScreen(),
         '/chargesel': (context) => ChargesSelectionScreen(),
+        '/bankinfo': (context) => BankInfoScreen(),
         '/payment_details': (context) => PaymentDetailsScreen(
               selectedCharges: [],
             ),
