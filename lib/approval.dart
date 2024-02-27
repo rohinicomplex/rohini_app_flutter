@@ -135,8 +135,11 @@ class _ActivityApprovalState extends State<ActivityApproval> {
       ),
       body: _activities.isEmpty
           ? Center(
-              child: CircularProgressIndicator(),
-            )
+              child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                  "Looks like you're free to enjoy your coffee break - no approvals waiting to rain on your parade! ☕️"),
+            ))
           : ListView.builder(
               itemCount: _activities.length,
               itemBuilder: (context, index) {
@@ -235,7 +238,7 @@ class _ActivityApprovalState extends State<ActivityApproval> {
                 // Implement your reject logic here
                 String comments = commentController.text;
                 _actionOnActivity(context, item.activityId, 3, comments);
-                print('Reject button pressed with comments: $comments');
+
                 // Refresh the list
                 Navigator.of(context).pop();
               },
@@ -264,7 +267,7 @@ class _ActivityApprovalState extends State<ActivityApproval> {
               child: Text('OK'),
               onPressed: () {
                 // Implement your approve logic here
-                print('Approve button pressed');
+
                 _actionOnActivity(context, item.activityId, 3, 'Approved');
                 // Refresh the list
                 Navigator.of(context).pop();
