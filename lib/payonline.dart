@@ -101,23 +101,34 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Please select a payment gateway:'),
+              //Text('Please select a payment gateway:'),
               SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  ElevatedButton(
+                  OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(
+                          width: 2.0,
+                          color: Theme.of(context)
+                              .primaryColor), // Adjust border width and color as needed
+                    ),
                     onPressed: () {
                       _processPayment('Paytm');
                     },
-                    child: Text('Paytm'),
+                    child: Image.asset(
+                      'assets/Paytm_logo.png',
+                      width: 50.0, // Adjust image width as needed
+                      height: 24.0,
+                    ),
+                    //Text('PayTM'),
                   ),
-                  ElevatedButton(
+                  /*ElevatedButton(
                     onPressed: () {
                       _processPayment('BillDesk');
                     },
                     child: Text('BillDesk'),
-                  ),
+                  ),*/
                 ],
               ),
               SizedBox(height: 10),
