@@ -1,10 +1,19 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'storage.dart';
 
 class User {
   final String id;
   final String name;
 
   User({required this.id, required this.name});
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['VALUE'],
+      name: json['LABEL'],
+    );
+  }
 }
 
 class PayItem {
@@ -12,17 +21,45 @@ class PayItem {
   final String invoiceDate;
   final String chargeDetails;
   final String dueDate;
+  final double amountDue;
   final double amount;
+  final double paid;
+  final double wf;
+  final double wfAble;
+  final double maxPayAmount;
   final String paymentStatus;
-
+  final String wfReason;
   PayItem({
     required this.id,
     required this.invoiceDate,
     required this.chargeDetails,
     required this.dueDate,
     required this.amount,
+    required this.amountDue,
     required this.paymentStatus,
+    required this.wf,
+    required this.wfAble,
+    required this.maxPayAmount,
+    required this.wfReason,
+    required this.paid,
   });
+
+  factory PayItem.fromJson(Map<String, dynamic> json) {
+    return PayItem(
+      id: json['SLNO'],
+      invoiceDate: json['INVDATE'],
+      dueDate: json['DUEDATE'],
+      amountDue: double.parse(json['DUEAMOUNT']),
+      amount: double.parse(json['AMOUNT']),
+      chargeDetails: json['CHARGEDETAILS'],
+      paymentStatus: json['PAYSTATUS'],
+      wf: double.parse(json['WF']),
+      wfAble: double.parse(json['WFABLE']),
+      maxPayAmount: double.parse(json['MAXPAYAMOUNT']),
+      wfReason: json['WFREASON'] == null ? '' : json['WFREASON'],
+      paid: double.parse(json['PAID']),
+    );
+  }
 }
 
 class PayOnlineScreen extends StatefulWidget {
@@ -41,28 +78,68 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
     super.initState();
     // Fetch users from REST service
     _fetchUsers();
+    _fetchPayItems(null);
   }
 
   // Method to fetch users from REST service
-  void _fetchUsers() {
+  void _fetchUsers() async {
     // Simulating fetching users from REST service
     // Here, you would typically make an HTTP request to fetch users
     // and then update the _users list with the response data
-    setState(() {
-      _users = [
-        User(id: '1', name: 'User 1'),
-        User(id: '2', name: 'User 2'),
-        User(id: '3', name: 'User 3'),
-      ];
-    });
+    String user = await LocalAppStorage().getUserName();
+    String token = await LocalAppStorage().getToken();
+    Map<String, String> requestHeaders = {'token': token, 'usertk': user};
+
+//var map = new Map<String, String>();
+
+    final response = await http.get(
+        Uri.parse('https://rohinicomplex.in/service/allnames.php'),
+        headers: requestHeaders);
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      setState(() {
+        _users = data.map((json) => User.fromJson(json)).toList();
+      });
+    } else {
+      throw Exception('Failed to load users');
+    }
   }
 
   // Method to fetch pay items based on selected user from REST service
-  void _fetchPayItems(User user) {
+  void _fetchPayItems(User? selUser) async {
     // Simulating fetching pay items from REST service based on selected user
     // Here, you would typically make an HTTP request to fetch pay items
     // specific to the selected user and then update the _payItems list with the response data
-    setState(() {
+    String user = await LocalAppStorage().getUserName();
+    String token = await LocalAppStorage().getToken();
+    Map<String, String> requestHeaders = {'token': token, 'usertk': user};
+
+    var map = new Map<String, String>();
+    map['userName'] = user;
+
+    if (selUser != null) {
+      // print("test");
+      map['userID'] = selUser.id;
+    }
+    try {
+      final response = await http.post(
+        Uri.parse('https://rohinicomplex.in/service/getSelfPayCharges.php'),
+        headers: requestHeaders,
+        body: map,
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          _payItems = data.map((json) => PayItem.fromJson(json)).toList();
+          print(_payItems.length);
+        });
+      } else {
+        throw Exception('Failed to load charge items');
+      }
+    } catch (e) {
+      print(e);
+    }
+    /*setState(() {
       _payItems = [
         PayItem(
             id: '001',
@@ -87,7 +164,7 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
             paymentStatus: 'Pending'),
         // Add more pay items here
       ];
-    });
+    });*/
   }
 
   // Method to call REST service for payment
@@ -245,11 +322,13 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('ID: ${item.id}'),
-                      Text('Invoice Date: ${item.invoiceDate}'),
-                      Text('Due Date: ${item.dueDate}'),
-                      Text('Amount: ${item.amount}'),
-                      Text('Payment Status: ${item.paymentStatus}'),
+                      Text('Total Charge Amount: ${item.amount}'),
+                      Text('Total Discount Applied:: ${item.wf}'),
+                      Text('Discount yet to apply:: ${item.wfAble}'),
+                      Text(
+                          'Total Charge Amount after discount for ${item.wfReason}: ${item.maxPayAmount}'),
+                      Text('Total Paid : ${item.paid}'),
+                      Text('Total Payable Amount : ${item.amountDue}'),
                     ],
                   ),
                   trailing: TextButton(
