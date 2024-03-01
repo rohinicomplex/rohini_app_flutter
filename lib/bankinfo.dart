@@ -22,14 +22,13 @@ class BankInfoScreen extends StatelessWidget {
             icon: Icon(Icons.copy),
             onPressed: () {
               // Concatenate bank details
-              String bankDetails = '''
-                Account Name: ROHINI COMPLEX FLAT OWNERS ASSOCIATION
-                Account Number: 00000035088967363
-                Bank Name: State Bank of India
-                Account Type: Savings
-                IFS Code: SBIN0012384
-                Branch: RAJARHAT TOWNSHIP
-              ''';
+              String bankDetails =
+                  '''Account Name: ROHINI COMPLEX FLAT OWNERS ASSOCIATION
+Account Number: 00000035088967363
+Bank Name: State Bank of India
+Account Type: Savings
+IFSC Code: SBIN0012384
+Branch: RAJARHAT TOWNSHIP''';
               // Call method to copy to clipboard
               _copyToClipboard(bankDetails, context);
             },

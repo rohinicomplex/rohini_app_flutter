@@ -296,7 +296,8 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
             onPressed: () {
               _selectUser(context);
             },
-            child: Text(_selectedUser?.name ?? 'Select User'),
+            child: Text(_selectedUser?.name ?? 'Select User',
+                style: TextStyle(fontSize: 18.0)),
           ),
           SizedBox(height: 20),
           Expanded(
@@ -403,28 +404,24 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return Container(
-          height: 200.0, // Adjust height as needed
-          child: ListView.builder(
-            itemCount: _users.length,
-            itemBuilder: (context, index) {
-              final user = _users[index];
-              return ListTile(
-                title: Text(user.name),
-                onTap: () {
-                  setState(() {
-                    _selectedUser = user;
-                    _selectedItems
-                        .clear(); // Clear selected items when user changes
-                    _fetchPayItems(
-                        user); // Fetch pay items for the selected user
-                  });
-                  Navigator.pop(
-                      context); // Close the bottom sheet after selection
-                },
-              );
-            },
-          ),
+        return ListView.builder(
+          itemCount: _users.length,
+          itemBuilder: (context, index) {
+            final user = _users[index];
+            return ListTile(
+              title: Text(user.name),
+              onTap: () {
+                setState(() {
+                  _selectedUser = user;
+                  _selectedItems
+                      .clear(); // Clear selected items when user changes
+                  _fetchPayItems(user); // Fetch pay items for the selected user
+                });
+                Navigator.pop(
+                    context); // Close the bottom sheet after selection
+              },
+            );
+          },
         );
       },
     );
