@@ -323,13 +323,13 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Total Charge Amount: ${item.amount}'),
-                      Text('Total Discount Applied:: ${item.wf}'),
-                      Text('Discount yet to apply:: ${item.wfAble}'),
+                      Text('Invoice Date: ${item.invoiceDate}'),
+                      Text('Due Date:: ${item.dueDate}'),
+                      Text('Status:: ${item.paymentStatus}'),
                       Text(
-                          'Total Charge Amount after discount for ${item.wfReason}: ${item.maxPayAmount}'),
-                      Text('Total Paid : ${item.paid}'),
-                      Text('Total Payable Amount : ${item.amountDue}'),
+                        'Total Payable Amount : ${item.amountDue}',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ],
                   ),
                   trailing: TextButton(
@@ -379,10 +379,13 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text('Total Charge Amount: ${item.amount}'),
-              Text('Total Discount Applied: 0'), // Placeholder for now
-              Text('Total Paid: 0'), // Placeholder for now
+              Text('Total Discount Applied:: ${item.wf}'),
+              Text('Discount yet to apply:: ${item.wfAble}'),
               Text(
-                'Total Payable Amount: ${item.amount}',
+                  'Total Charge Amount after discount for ${item.wfReason}: ${item.maxPayAmount}'),
+              Text('Total Paid : ${item.paid}'),
+              Text(
+                'Total Payable Amount : ${item.amountDue}',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ],
