@@ -306,39 +306,41 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
               itemBuilder: (context, index) {
                 final item = _payItems[index];
                 final isSelected = _selectedItems.contains(item);
-                return ListTile(
-                  leading: Checkbox(
-                    value: isSelected,
-                    onChanged: (bool? value) {
-                      setState(() {
-                        if (value != null && value) {
-                          _selectedItems.add(item);
-                        } else {
-                          _selectedItems.remove(item);
-                        }
-                      });
-                    },
-                  ),
-                  title: Text(item.chargeDetails),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Invoice Date: ${item.invoiceDate}'),
-                      Text('Due Date:: ${item.dueDate}'),
-                      Text('Status:: ${item.paymentStatus}'),
-                      Text(
-                        'Total Payable Amount : ${item.amountDue}',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                return Card(
+                    margin: EdgeInsets.symmetric(vertical: 8.0),
+                    child: ListTile(
+                      leading: Checkbox(
+                        value: isSelected,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            if (value != null && value) {
+                              _selectedItems.add(item);
+                            } else {
+                              _selectedItems.remove(item);
+                            }
+                          });
+                        },
                       ),
-                    ],
-                  ),
-                  trailing: TextButton(
-                    onPressed: () {
-                      _showDetailsDialog(context, item);
-                    },
-                    child: Text('Details'),
-                  ),
-                );
+                      title: Text(item.chargeDetails),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Invoice Date: ${item.invoiceDate}'),
+                          Text('Due Date:: ${item.dueDate}'),
+                          Text('Status:: ${item.paymentStatus}'),
+                          Text(
+                            'Total Payable Amount : ${item.amountDue}',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      trailing: TextButton(
+                        onPressed: () {
+                          _showDetailsDialog(context, item);
+                        },
+                        child: Text('Details'),
+                      ),
+                    ));
               },
             ),
           ),
