@@ -29,6 +29,7 @@ class PayItem {
   final double maxPayAmount;
   final String paymentStatus;
   final String wfReason;
+  final int userID;
   PayItem({
     required this.id,
     required this.invoiceDate,
@@ -42,6 +43,7 @@ class PayItem {
     required this.maxPayAmount,
     required this.wfReason,
     required this.paid,
+    required this.userID,
   });
 
   factory PayItem.fromJson(Map<String, dynamic> json) {
@@ -58,6 +60,7 @@ class PayItem {
       maxPayAmount: double.parse(json['MAXPAYAMOUNT']),
       wfReason: json['WFREASON'] == null ? '' : json['WFREASON'],
       paid: double.parse(json['PAID']),
+      userID: int.parse(json['USERID']),
     );
   }
 }
@@ -224,7 +227,54 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
   }
 
   // Method to process payment based on selected gateway
-  void _processPayment(String gateway) {
+  void _processPayment(String gateway) async {
+    double totalAmount = 0;
+    String chargeitemStr = "";
+    String wfitemStr = "";
+    //var wfAmount=0;
+    double wftot = 0;
+    String wfReasonv = "";
+    int userid = _selectedItems[0].userID;
+
+    for (var item in _selectedItems) {
+      totalAmount += item.amountDue;
+      chargeitemStr += (item.id + ":" + item.amountDue.toString() + ",");
+      wfitemStr += (item.id + ":" + item.wfAble.toString() + ",");
+      wftot += item.wfAble;
+      if (item.wfReason != '') {
+        wfReasonv = item.wfReason;
+      }
+    }
+    String user = await LocalAppStorage().getUserName();
+    String token = await LocalAppStorage().getToken();
+    Map<String, String> requestHeaders = {'token': token, 'usertk': user};
+
+    var map = new Map<String, String>();
+    map['selfpay'] = 'true';
+    map['userid'] = _selectedItems[0].userID.toString();
+    map['vide'] = '1';
+    map['amount'] = totalAmount.toString();
+    map['date'] = totalAmount.toString();
+
+    try {
+      final response = await http.post(
+        Uri.parse('https://rohinicomplex.in/service/getSelfPayCharges.php'),
+        headers: requestHeaders,
+        body: map,
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          _payItems = data.map((json) => PayItem.fromJson(json)).toList();
+          print(_payItems.length);
+        });
+      } else {
+        throw Exception('Failed to load charge items');
+      }
+    } catch (e) {
+      print(e);
+    }
+
     // Simulate calling REST service for payment
     // Here, you would typically make an HTTP request to your payment gateway API
     // and process the payment based on the selected gateway
@@ -364,8 +414,9 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
 
   String _calculateTotalAmount() {
     double totalAmount = 0;
+
     for (var item in _selectedItems) {
-      totalAmount += item.amount;
+      totalAmount += item.amountDue;
     }
     return totalAmount.toStringAsFixed(2);
   }
@@ -382,9 +433,11 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
             children: [
               Text('Total Charge Amount: ${item.amount}'),
               Text('Total Discount Applied:: ${item.wf}'),
-              Text('Discount yet to apply:: ${item.wfAble}'),
-              Text(
-                  'Total Charge Amount after discount for ${item.wfReason}: ${item.maxPayAmount}'),
+              if (item.wfAble > 0)
+                Text('Discount yet to apply:: ${item.wfAble}'),
+              if (item.wfReason != '')
+                Text(
+                    'Total Charge Amount after discount for ${item.wfReason}: ${item.maxPayAmount}'),
               Text('Total Paid : ${item.paid}'),
               Text(
                 'Total Payable Amount : ${item.amountDue}',
