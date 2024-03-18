@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class OTPScreen extends StatefulWidget {
   @override
@@ -17,6 +19,9 @@ class _OTPScreenState extends State<OTPScreen> {
   bool _isVerified = false;
 
   Timer? _resendTimer;
+  String _text = "";
+  Color _col = Colors.green;
+  String _usr = "";
 
   @override
   void dispose() {
@@ -25,17 +30,39 @@ class _OTPScreenState extends State<OTPScreen> {
   }
 
   // Function to send OTP to the provided email or phone number
-  void sendOTP() {
+  void sendOTP() async {
     String emailOrPhoneNumber = emailOrPhoneNumberController.text;
     // Here you can implement the logic to send OTP to the provided email or phone number
     // For demo purposes, let's print the email or phone number
-    print('OTP sent to: $emailOrPhoneNumber');
-    // Start the resend timer
-    startResendTimer();
-    // Show OTP field
-    setState(() {
-      _showOTPField = true;
-    });
+    try {
+      var map = new Map<String, String>();
+      map["email"] = emailOrPhoneNumber;
+      final response = await http.post(
+        Uri.parse("https://rohinicomplex.in/service/getOTP.php"),
+        body: map,
+      );
+      if (response.statusCode == 200) {
+        final obj = json.decode(response.body);
+        if (obj["result"] > 0) {
+// Start the resend timer
+          startResendTimer();
+          // Show OTP field
+          setState(() {
+            _text = 'OTP sent to: $emailOrPhoneNumber';
+            _col = Colors.green;
+            _showOTPField = true;
+            _usr = obj["users"][0]["USERNAME"];
+          });
+        }
+      } else {
+        throw Exception('Failed to generate OTP');
+      }
+    } catch (e) {
+      setState(() {
+        _text = 'Failed to generate OTP';
+        _col = Colors.red;
+      });
+    }
   }
 
   // Function to start the resend timer
@@ -65,7 +92,7 @@ class _OTPScreenState extends State<OTPScreen> {
   }
 
   // Function to verify OTP
-  void verifyOTP() {
+  void verifyOTP() async {
     String enteredOTP =
         otpControllers.map((controller) => controller.text).join();
     // Here you can implement the logic to verify the OTP
@@ -73,6 +100,40 @@ class _OTPScreenState extends State<OTPScreen> {
     print('Entered OTP: $enteredOTP');
     // You can add further logic here to validate the OTP
     // For now, let's simulate verification by printing the message
+    String emailOrPhoneNumber = emailOrPhoneNumberController.text;
+    // Here you can implement the logic to send OTP to the provided email or phone number
+    // For demo purposes, let's print the email or phone number
+    try {
+      var map = new Map<String, String>();
+      map["email"] = emailOrPhoneNumber;
+      map["otp"] = enteredOTP;
+      map["uname"] = emailOrPhoneNumber;
+      final response = await http.post(
+        Uri.parse("https://rohinicomplex.in/service/registerapp.php"),
+        body: map,
+      );
+      if (response.statusCode == 200) {
+        final obj = json.decode(response.body);
+        if (obj["result"] > 0) {
+// Start the resend timer
+          startResendTimer();
+          // Show OTP field
+          setState(() {
+            _text = 'OTP sent to: $emailOrPhoneNumber';
+            _col = Colors.green;
+            _showOTPField = true;
+          });
+        }
+      } else {
+        throw Exception('Failed to generate OTP');
+      }
+    } catch (e) {
+      setState(() {
+        _text = 'Failed to generate OTP';
+        _col = Colors.red;
+      });
+    }
+
     setState(() {
       _isVerified = true;
     });
@@ -102,9 +163,8 @@ class _OTPScreenState extends State<OTPScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              if (_isVerified) ...[
-                Text('Verified successfully',
-                    style: TextStyle(color: Colors.green)),
+              if (true) ...[
+                Text(_text, style: TextStyle(color: _col)),
                 SizedBox(height: 20.0),
               ],
               if (!_showOTPField) ...[
