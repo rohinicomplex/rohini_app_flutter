@@ -21,6 +21,7 @@ dependencies:
   flutter_file_downloader: ^1.2.1
   html: ^0.15.1
   paytm_allinonesdk: ^1.2.4
+  local_auth: ^2.1.6
   
   
 

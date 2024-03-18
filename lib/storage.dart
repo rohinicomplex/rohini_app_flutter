@@ -17,6 +17,13 @@ class LocalAppStorage {
     prefs.setBool('storage', true);
   }
 
+  void removeUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove('token');
+    prefs.remove('username');
+    prefs.remove('storage');
+  }
+
   Future getUserName() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('username');
@@ -25,5 +32,15 @@ class LocalAppStorage {
   Future getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
+  }
+
+  Future getTouchIDEnable() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('touchID');
+  }
+
+  Future setTouchIDEnable(bool val) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.setBool('touchID', val);
   }
 }

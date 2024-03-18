@@ -1,7 +1,31 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:local_auth/local_auth.dart';
+import 'storage.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
+  @override
+  _SettingsPageState createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  bool touchIDEnabled = false; // Default value
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTouchIDEnabled();
+  }
+
+  Future<void> _fetchTouchIDEnabled() async {
+    bool enabled = await LocalAppStorage().getTouchIDEnable();
+    setState(() {
+      touchIDEnabled = enabled;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,9 +62,10 @@ class SettingsPage extends StatelessWidget {
               children: [
                 Text('Require Touch ID'),
                 Switch(
-                  value: true, // Set the initial value as required
+                  value: touchIDEnabled, // Set the initial value as required
                   onChanged: (value) {
                     // Handle toggle changes
+                    _setTouchID(context, value);
                   },
                 ),
               ],
@@ -56,6 +81,7 @@ class SettingsPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Un-register logic
+                _showUnregisterConfirmation(context);
               },
               child: Text('Un-register this app'),
             ),
@@ -65,11 +91,88 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
+  Future<void> _showUnregisterConfirmation(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button for close dialog!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Un-register this app?'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Are you sure you want to un-register this app?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                LocalAppStorage().removeUser();
+
+                Navigator.pushReplacementNamed(context, '/otp');
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _launchURL(String url) async {
     if (await canLaunch(url)) {
       await launch(url);
     } else {
       throw 'Could not launch $url';
+    }
+  }
+
+  void _setTouchID(BuildContext context, bool val) async {
+    if (val == false) {
+      await LocalAppStorage().setTouchIDEnable(false);
+      setState(() {
+        touchIDEnabled = false;
+      });
+      return;
+    }
+
+    final localAuth = LocalAuthentication();
+
+    try {
+      bool canCheckBiometrics = await localAuth.canCheckBiometrics;
+
+      if (canCheckBiometrics) {
+        List<BiometricType> availableBiometrics =
+            await localAuth.getAvailableBiometrics();
+
+        if (availableBiometrics.contains(BiometricType.fingerprint) ||
+            availableBiometrics.contains(BiometricType.face)) {
+          bool authenticated = await localAuth.authenticate(
+            localizedReason: 'Authenticate to enable Touch ID',
+          );
+
+          if (authenticated) {
+            await LocalAppStorage().setTouchIDEnable(true);
+            setState(() {
+              touchIDEnabled = true;
+            });
+          }
+        }
+      }
+    } catch (e) {
+      // Handle errors
+      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Authentication failed. Please try again.'),
+      ));
     }
   }
 
@@ -93,9 +196,9 @@ class SettingsPage extends StatelessWidget {
               SizedBox(height: 10.0),
               GestureDetector(
                 onTap: () {
-                  _launchURL('tel:+91-33-2519-5172');
+                  _launchURL('tel:+917003452046');
                 },
-                child: Text('Quick Contact +91-33-2519-5172'),
+                child: Text('Quick Contact +91-7003452046'),
               ),
               SizedBox(height: 10.0),
               GestureDetector(
@@ -107,9 +210,9 @@ class SettingsPage extends StatelessWidget {
               SizedBox(height: 10.0),
               GestureDetector(
                 onTap: () {
-                  _launchURL('https://wa.me/+913325195172');
+                  _launchURL('https://wa.me/+917003452046');
                 },
-                child: Text('Whatsapp @ 913325195172'),
+                child: Text('Whatsapp @ 917003452046'),
               ),
             ],
           ),
