@@ -17,7 +17,14 @@ class LocalAppStorage {
     prefs.setBool('storage', true);
   }
 
-  void removeUser() async {
+  Future storeData(String token, String uname) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('token', token);
+    prefs.setString('username', uname);
+    prefs.setBool('storage', true);
+  }
+
+  Future removeUser() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.remove('token');
     prefs.remove('username');

@@ -1,3 +1,4 @@
+import 'package:app/storage.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -11,7 +12,7 @@ class OTPScreen extends StatefulWidget {
 class _OTPScreenState extends State<OTPScreen> {
   TextEditingController emailOrPhoneNumberController = TextEditingController();
   List<TextEditingController> otpControllers =
-      List.generate(6, (index) => TextEditingController());
+      List.generate(4, (index) => TextEditingController());
 
   int _resendTimeout = 30;
   bool _isResendDisabled = false;
@@ -22,7 +23,7 @@ class _OTPScreenState extends State<OTPScreen> {
   String _text = "";
   Color _col = Colors.green;
   String _usr = "";
-
+  String _em = "";
   @override
   void dispose() {
     _resendTimer?.cancel();
@@ -48,6 +49,7 @@ class _OTPScreenState extends State<OTPScreen> {
           startResendTimer();
           // Show OTP field
           setState(() {
+            _em = emailOrPhoneNumber;
             _text = 'OTP sent to: $emailOrPhoneNumber';
             _col = Colors.green;
             _showOTPField = true;
@@ -100,14 +102,14 @@ class _OTPScreenState extends State<OTPScreen> {
     print('Entered OTP: $enteredOTP');
     // You can add further logic here to validate the OTP
     // For now, let's simulate verification by printing the message
-    String emailOrPhoneNumber = emailOrPhoneNumberController.text;
+
     // Here you can implement the logic to send OTP to the provided email or phone number
     // For demo purposes, let's print the email or phone number
     try {
       var map = new Map<String, String>();
-      map["email"] = emailOrPhoneNumber;
+      map["email"] = _em;
       map["otp"] = enteredOTP;
-      map["uname"] = emailOrPhoneNumber;
+      map["uname"] = _usr;
       final response = await http.post(
         Uri.parse("https://rohinicomplex.in/service/registerapp.php"),
         body: map,
@@ -115,28 +117,25 @@ class _OTPScreenState extends State<OTPScreen> {
       if (response.statusCode == 200) {
         final obj = json.decode(response.body);
         if (obj["result"] > 0) {
-// Start the resend timer
-          startResendTimer();
-          // Show OTP field
+          LocalAppStorage().storeData(obj['token'], _usr);
+
           setState(() {
-            _text = 'OTP sent to: $emailOrPhoneNumber';
+            _isVerified = true;
+            _text = "OTP Validated";
             _col = Colors.green;
-            _showOTPField = true;
           });
+        } else {
+          throw Exception('Unable to validate OTP');
         }
       } else {
-        throw Exception('Failed to generate OTP');
+        throw Exception('System Error!');
       }
     } catch (e) {
       setState(() {
-        _text = 'Failed to generate OTP';
+        _text = e.toString();
         _col = Colors.red;
       });
     }
-
-    setState(() {
-      _isVerified = true;
-    });
   }
 
   // Function to reset the OTP entry and resend process
@@ -148,6 +147,8 @@ class _OTPScreenState extends State<OTPScreen> {
       _isVerified = false;
       emailOrPhoneNumberController.clear();
       otpControllers.forEach((controller) => controller.clear());
+      _text = "";
+      _col = Colors.green;
     });
   }
 
@@ -191,7 +192,7 @@ class _OTPScreenState extends State<OTPScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(
-                    6,
+                    4,
                     (index) => SizedBox(
                       width: 50.0,
                       child: TextField(
@@ -201,7 +202,7 @@ class _OTPScreenState extends State<OTPScreen> {
                         maxLength: 1, // Each box holds only one digit
                         onChanged: (value) {
                           // Move focus to the next box when a digit is entered
-                          if (value.isNotEmpty && index < 5) {
+                          if (value.isNotEmpty && index < 3) {
                             FocusScope.of(context).nextFocus();
                           }
                         },
