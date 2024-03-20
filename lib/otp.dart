@@ -44,6 +44,7 @@ class _OTPScreenState extends State<OTPScreen> {
       );
       if (response.statusCode == 200) {
         final obj = json.decode(response.body);
+
         if (obj["result"] > 0) {
 // Start the resend timer
           startResendTimer();
@@ -116,14 +117,15 @@ class _OTPScreenState extends State<OTPScreen> {
       );
       if (response.statusCode == 200) {
         final obj = json.decode(response.body);
-        if (obj["result"] > 0) {
-          LocalAppStorage().storeData(obj['token'], _usr);
 
+        if (obj["result"] == "1") {
+          LocalAppStorage().storeData(obj['token'], _usr);
           setState(() {
             _isVerified = true;
             _text = "OTP Validated";
             _col = Colors.green;
           });
+          Navigator.pushReplacementNamed(context, '/landing');
         } else {
           throw Exception('Unable to validate OTP');
         }
