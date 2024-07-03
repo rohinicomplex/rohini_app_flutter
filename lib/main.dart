@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      initialRoute: '/otp',
+      initialRoute: '/landing',
       routes: {
         '/otp': (context) => OTPScreen(),
         '/expense': (context) => ExpenseAddScreen(),
@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
         '/payonline': (context) => PayOnlineScreen(),
         '/notice': (context) => NoticeScreen(),
         '/chat': (context) => GroupChatScreen(),
-        '/event': (context) => CommunityHallBookingScreen(),
+        '/event1': (context) => CommunityHallBookingScreen(),
         '/ledger': (context) => LedgerScreen(),
         '/contacts': (context) => ContactsScreen(),
         '/approvals': (context) => ActivityApproval(),

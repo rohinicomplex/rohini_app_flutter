@@ -48,6 +48,19 @@ class LocalAppStorage {
 
   Future setTouchIDEnable(bool val) async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.setBool('touchID', val);
+    prefs.setBool('touchID', val);
+  }
+
+  Future setPermission(String val) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('permission', val);
+    return true;
+  }
+
+  Future isPermitted(String val) async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? allPerm = prefs.getString('permission');
+    List<String> a = (allPerm ?? "").split(",");
+    return a.contains(val);
   }
 }

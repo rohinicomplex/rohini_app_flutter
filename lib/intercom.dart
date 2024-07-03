@@ -169,7 +169,6 @@ class _IntercomScreenState extends State<IntercomScreen> {
                                     setState(() {
                                       selectedFloor = 1;
                                     });
-                                    
                                   }),
                                   FloorButton(2, selectedFloor, () {
                                     setState(() {
@@ -294,7 +293,7 @@ class BlockButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        primary: selectedBlock == text
+        foregroundColor: selectedBlock == text
             ? Theme.of(context).primaryColor
             : Colors.grey,
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -319,7 +318,7 @@ class FloorButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        primary: selectedFloor == floor
+        foregroundColor: selectedFloor == floor
             ? Theme.of(context).primaryColor
             : Colors.grey,
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -348,7 +347,7 @@ class ApartmentButton extends StatelessWidget {
         child: ElevatedButton(
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
-            primary: Theme.of(context).primaryColor,
+            foregroundColor: Theme.of(context).primaryColor,
             padding: EdgeInsets.all(16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),

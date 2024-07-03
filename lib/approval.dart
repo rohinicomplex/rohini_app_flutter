@@ -174,7 +174,8 @@ class _ActivityApprovalState extends State<ActivityApproval> {
                                 );
                               },
                               style: OutlinedButton.styleFrom(
-                                  primary: Theme.of(context).primaryColor),
+                                  foregroundColor:
+                                      Theme.of(context).primaryColor),
                               child: Text('Details'),
                             ),
                             Spacer(),
@@ -183,7 +184,7 @@ class _ActivityApprovalState extends State<ActivityApproval> {
                                 _showApproveConfirmationDialog(item);
                               },
                               style: ElevatedButton.styleFrom(
-                                primary: Theme.of(context).primaryColor,
+                                foregroundColor: Theme.of(context).primaryColor,
                               ),
                               child: Text('Approve'),
                             ),
@@ -193,7 +194,7 @@ class _ActivityApprovalState extends State<ActivityApproval> {
                                 _showRejectConfirmationDialog(item);
                               },
                               style: ElevatedButton.styleFrom(
-                                primary: Colors.red,
+                                foregroundColor: Colors.red,
                               ),
                               child: Text('Reject'),
                             ),

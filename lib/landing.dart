@@ -31,7 +31,7 @@ class LandingPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Welcome to Our App',
+                  'Welcome Mr. XYZ',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20.0,
@@ -40,7 +40,7 @@ class LandingPage extends StatelessWidget {
                 ),
                 SizedBox(height: 10.0),
                 Text(
-                  'Explore various features and functionalities.',
+                  'Wao! You have no pending actions!',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 14.0,

@@ -120,6 +120,7 @@ class _OTPScreenState extends State<OTPScreen> {
 
         if (obj["result"] == "1") {
           LocalAppStorage().storeData(obj['token'], _usr);
+          fetchPermissions(_usr, obj['token']);
           setState(() {
             _isVerified = true;
             _text = "OTP Validated";
@@ -138,6 +139,43 @@ class _OTPScreenState extends State<OTPScreen> {
         _col = Colors.red;
       });
     }
+  }
+
+  void fetchPermissions(String user, String token) async {
+    Map<String, String> requestHeaders = {'token': token, 'usertk': user};
+
+    var map = new Map<String, String>();
+    map['username'] = user;
+
+    try {
+      final response = await http.post(
+        Uri.parse('https://rohinicomplex.in/service/getAppPermissions.php'),
+        headers: requestHeaders,
+        body: map,
+      );
+      if (response.statusCode == 200) {
+        final List<String> data = json.decode(response.body);
+        await LocalAppStorage().setPermission(data.join(","));
+      } else {
+        _showMessage(context, "Unable to fetch permissions");
+      }
+    } catch (e) {
+      _showMessage(context, e.toString());
+    }
+  }
+
+  _showMessage(context, String txt) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(txt),
+        action: SnackBarAction(
+          label: 'Close',
+          onPressed: () {
+            // Code to execute.
+          },
+        ),
+      ),
+    );
   }
 
   // Function to reset the OTP entry and resend process
@@ -220,7 +258,7 @@ class _OTPScreenState extends State<OTPScreen> {
                 ElevatedButton(
                   onPressed: verifyOTP,
                   style: ElevatedButton.styleFrom(
-                    primary: Theme.of(context).colorScheme.secondary,
+                    foregroundColor: Theme.of(context).colorScheme.secondary,
                     textStyle: TextStyle(fontSize: 18.0),
                   ),
                   child: Text('Verify OTP'),

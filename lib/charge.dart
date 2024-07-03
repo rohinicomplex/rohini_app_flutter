@@ -33,7 +33,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
   DateTime? _toDate;
   String _searchText = '';
   String _buttonTxt = 'Select User';
-
+  bool _otherChargeList = false;
   TextEditingController _searchController = TextEditingController();
   List<ChargeItem> _chargeItems = [];
   List<ChargeItem> _allChargeItems = [];
@@ -161,15 +161,17 @@ class _ChargeScreenState extends State<ChargeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ElevatedButton(
-              onPressed: () {
-                _showUserSelection(context);
-              },
-              child: Text(
-                _buttonTxt,
-                style: TextStyle(fontSize: 18.0), // Increased font size
-              ),
-            ),
+            _otherChargeList
+                ? Container()
+                : ElevatedButton(
+                    onPressed: () {
+                      _showUserSelection(context);
+                    },
+                    child: Text(
+                      _buttonTxt,
+                      style: TextStyle(fontSize: 18.0), // Increased font size
+                    ),
+                  ),
             SizedBox(height: 20.0),
             _selectedUserId.isNotEmpty
                 ? Expanded(
@@ -243,6 +245,10 @@ class _ChargeScreenState extends State<ChargeScreen> {
   void _fetchUsers() async {
     String user = await LocalAppStorage().getUserName();
     String token = await LocalAppStorage().getToken();
+    bool t = await LocalAppStorage().isPermitted("srchothercharge");
+    setState(() {
+      _otherChargeList = t;
+    });
     Map<String, String> requestHeaders = {'token': token, 'usertk': user};
 
 //var map = new Map<String, String>();
