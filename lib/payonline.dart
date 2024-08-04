@@ -91,7 +91,12 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
     // and then update the _users list with the response data
     String user = await LocalAppStorage().getUserName();
     String token = await LocalAppStorage().getToken();
-    Map<String, String> requestHeaders = {'token': token, 'usertk': user};
+    Map<String, String> requestHeaders = {
+      'token': token,
+      'usertk': user,
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Access-Control-Allow-Origin, Accept'
+    };
 
 //var map = new Map<String, String>();
 

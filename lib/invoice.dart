@@ -244,7 +244,12 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   void _fetchUsers() async {
     String user = await LocalAppStorage().getUserName();
     String token = await LocalAppStorage().getToken();
-    Map<String, String> requestHeaders = {'token': token, 'usertk': user};
+    Map<String, String> requestHeaders = {
+      'token': token,
+      'usertk': user,
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Access-Control-Allow-Origin, Accept'
+    };
 
 //var map = new Map<String, String>();
 

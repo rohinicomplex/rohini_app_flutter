@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-//import 'package:flutter_html_view/flutter_html_view.dart';
 
 class NoticeScreen extends StatelessWidget {
   @override
@@ -23,12 +22,14 @@ class NoticeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: Column(
-          children: [
-            Container(
-              child: Container(),
-            ),
-          ],
+        appBar: AppBar(
+          title: Text('Notice'),
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(),
+          ),
         ),
       ),
     );
