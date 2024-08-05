@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-void main() {
-  runApp(MaterialApp(
-    home: ContactsScreen(),
-  ));
-}
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ContactsScreen extends StatefulWidget {
   @override
@@ -13,77 +11,72 @@ class ContactsScreen extends StatefulWidget {
 }
 
 class _ContactsScreenState extends State<ContactsScreen> {
-  List<Contact> _contacts = [
-    Contact(
-      name: 'John Doe',
-      phoneNumbers: [
-        PhoneNumber(number: '1234567890', type: PhoneType.mobile),
-        PhoneNumber(number: '9876543210', type: PhoneType.work),
-      ],
-    ),
-    Contact(
-      name: 'Jane Smith',
-      phoneNumbers: [
-        PhoneNumber(number: '1112223333', type: PhoneType.mobile),
-        PhoneNumber(
-            number: '4445556666', type: PhoneType.custom, label: 'Home'),
-      ],
-    ),
-  ];
+  List<AContact> _contacts = [];
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Contacts'),
-      ),
-      body: ListView.builder(
-        itemCount: _contacts.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(_contacts[index].name),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: _contacts[index]
-                  .phoneNumbers
-                  .map((phoneNumber) => GestureDetector(
-                        onTap: () {
-                          _launchURL(phoneNumber.number);
-                        },
-                        child: Text(phoneNumber.toString()),
-                      ))
-                  .toList(),
-            ),
-            onTap: () {
-              _navigateToContactDetail(context, _contacts[index]);
-            },
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.phone),
-                  onPressed: () {
-                    _launchURL('tel:${_contacts[index].mobileNumber}');
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.message),
-                  onPressed: () {
-                    _launchURL('sms:${_contacts[index].mobileNumber}');
-                  },
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _navigateToAddContact(context);
-        },
-        child: Icon(Icons.add),
-      ),
+  void initState() {
+    super.initState();
+    _fetchContacts();
+  }
+
+  Future<void> _fetchContacts() async {
+    final response = await http.post(
+      Uri.parse('https://rohinicomplex.in/service/getAllContacts.php'),
+      body: {'userName': 'yourUsername'},
     );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() {
+        _contacts = data.map((contact) => AContact.fromJson(contact)).toList();
+      });
+    } else {
+      // Handle error
+      print('Failed to load contacts');
+    }
+  }
+
+  Future<void> _saveContactToServer(AContact contact) async {
+    final response = await http.post(
+      Uri.parse('https://rohinicomplex.in/service/saveContact.php'),
+      body: {
+        'id': contact.id ?? '',
+        'name': contact.name,
+        'phoneNumber': contact.phoneNumber,
+        'userName': 'yourUsername'
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // Handle success
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Contact saved successfully')),
+      );
+    } else {
+      // Handle error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save contact')),
+      );
+    }
+  }
+
+  Future<void> _deleteContactFromServer(String id) async {
+    final response = await http.post(
+      Uri.parse('https://rohinicomplex.in/service/deleteContact.php'),
+      body: {'id': id},
+    );
+
+    if (response.statusCode == 200) {
+      // Handle success
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Contact deleted successfully')),
+      );
+    } else {
+      // Handle error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete contact')),
+      );
+    }
   }
 
   void _launchURL(String url) async {
@@ -99,18 +92,142 @@ class _ContactsScreenState extends State<ContactsScreen> {
       context,
       MaterialPageRoute(builder: (context) => AddContactScreen()),
     ).then((value) {
-      if (value != null && value is Contact) {
+      if (value != null && value is AContact) {
         setState(() {
           _contacts.add(value);
         });
+        _saveContactToServer(value);
       }
     });
   }
 
-  void _navigateToContactDetail(BuildContext context, Contact contact) {
+  void _navigateToEditContact(
+      BuildContext context, AContact contact, int index) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ContactDetailScreen(contact)),
+      MaterialPageRoute(builder: (context) => EditContactScreen(contact)),
+    ).then((value) {
+      if (value != null && value is AContact) {
+        setState(() {
+          _contacts[index] = value;
+        });
+        _saveContactToServer(value);
+      }
+    });
+  }
+
+  void _confirmDeleteContact(BuildContext context, int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Delete'),
+          content: Text('Are you sure you want to delete this contact?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _deleteContactFromServer(_contacts[index].id!);
+                setState(() {
+                  _contacts.removeAt(index);
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _saveContactToPhone(AContact contact) async {
+    if (await Permission.contacts.request().isGranted) {
+      final newContact = Contact()
+        ..name.first = contact.name.split(' ')[0]
+        ..name.last =
+            contact.name.split(' ').length > 1 ? contact.name.split(' ')[1] : ''
+        ..phones = [Phone(contact.phoneNumber)];
+
+      await FlutterContacts.insertContact(newContact);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Contact saved to phone')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Permission to access contacts is denied')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Contacts'),
+      ),
+      body: ListView.builder(
+        itemCount: _contacts.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(_contacts[index].name),
+            subtitle: GestureDetector(
+              onTap: () {
+                _launchURL('tel:${_contacts[index].phoneNumber}');
+              },
+              child: Text('Phone: ${_contacts[index].phoneNumber}'),
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.phone),
+                  onPressed: () {
+                    _launchURL('tel:${_contacts[index].phoneNumber}');
+                  },
+                ),
+                IconButton(
+                  icon: Icon(Icons.message),
+                  onPressed: () {
+                    _launchURL('sms:${_contacts[index].phoneNumber}');
+                  },
+                ),
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'edit') {
+                      _navigateToEditContact(context, _contacts[index], index);
+                    } else if (value == 'delete') {
+                      _confirmDeleteContact(context, index);
+                    } else if (value == 'save_to_phone') {
+                      _saveContactToPhone(_contacts[index]);
+                    }
+                  },
+                  itemBuilder: (BuildContext context) {
+                    return {'Edit', 'Delete', 'Save to Phone'}
+                        .map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice.toLowerCase().replaceAll(' ', '_'),
+                        child: Text(choice),
+                      );
+                    }).toList();
+                  },
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _navigateToAddContact(context);
+        },
+        child: Icon(Icons.add),
+      ),
     );
   }
 }
@@ -123,7 +240,6 @@ class AddContactScreen extends StatefulWidget {
 class _AddContactScreenState extends State<AddContactScreen> {
   TextEditingController _nameController = TextEditingController();
   TextEditingController _phoneNumberController = TextEditingController();
-  PhoneType _selectedPhoneType = PhoneType.mobile;
 
   @override
   Widget build(BuildContext context) {
@@ -143,20 +259,6 @@ class _AddContactScreenState extends State<AddContactScreen> {
             TextField(
               controller: _phoneNumberController,
               decoration: InputDecoration(labelText: 'Phone Number'),
-            ),
-            DropdownButtonFormField(
-              value: _selectedPhoneType,
-              items: PhoneType.values.map((type) {
-                return DropdownMenuItem(
-                  value: type,
-                  child: Text(type.toString().split('.').last),
-                );
-              }).toList(),
-              onChanged: (type) {
-                setState(() {
-                  _selectedPhoneType = type as PhoneType;
-                });
-              },
             ),
             SizedBox(height: 20),
             ElevatedButton(
@@ -178,103 +280,14 @@ class _AddContactScreenState extends State<AddContactScreen> {
     if (name.isNotEmpty && phoneNumber.isNotEmpty) {
       Navigator.pop(
         context,
-        Contact(
-          name: name,
-          phoneNumbers: [
-            PhoneNumber(number: phoneNumber, type: _selectedPhoneType),
-          ],
-        ),
+        AContact(id: null, name: name, phoneNumber: phoneNumber),
       );
     }
   }
 }
 
-class ContactDetailScreen extends StatelessWidget {
-  final Contact contact;
-
-  ContactDetailScreen(this.contact);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Contact Detail'),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Name: ${contact.name}'),
-            SizedBox(height: 10),
-            Text('Phone Numbers:'),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: contact.phoneNumbers
-                  .map(
-                    (phoneNumber) => Text(phoneNumber.toString()),
-                  )
-                  .toList(),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                _editContact(context);
-              },
-              child: Text('Edit'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                _confirmDeleteContact(context);
-              },
-              child: Text('Delete'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _editContact(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => EditContactScreen(contact)),
-    );
-  }
-
-  void _confirmDeleteContact(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Confirm Delete'),
-          content: Text('Are you sure you want to delete this contact?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                _deleteContact(context);
-              },
-              child: Text('Delete'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _deleteContact(BuildContext context) {
-    Navigator.of(context).pop(contact);
-  }
-}
-
 class EditContactScreen extends StatefulWidget {
-  final Contact contact;
+  final AContact contact;
 
   EditContactScreen(this.contact);
 
@@ -285,14 +298,12 @@ class EditContactScreen extends StatefulWidget {
 class _EditContactScreenState extends State<EditContactScreen> {
   TextEditingController _nameController = TextEditingController();
   TextEditingController _phoneNumberController = TextEditingController();
-  PhoneType _selectedPhoneType = PhoneType.mobile;
 
   @override
   void initState() {
     super.initState();
     _nameController.text = widget.contact.name;
-    _phoneNumberController.text = widget.contact.phoneNumbers[0].number;
-    _selectedPhoneType = widget.contact.phoneNumbers[0].type;
+    _phoneNumberController.text = widget.contact.phoneNumber;
   }
 
   @override
@@ -314,20 +325,6 @@ class _EditContactScreenState extends State<EditContactScreen> {
               controller: _phoneNumberController,
               decoration: InputDecoration(labelText: 'Phone Number'),
             ),
-            DropdownButtonFormField(
-              value: _selectedPhoneType,
-              items: PhoneType.values.map((type) {
-                return DropdownMenuItem(
-                  value: type,
-                  child: Text(type.toString().split('.').last),
-                );
-              }).toList(),
-              onChanged: (type) {
-                setState(() {
-                  _selectedPhoneType = type as PhoneType;
-                });
-              },
-            ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
@@ -346,44 +343,38 @@ class _EditContactScreenState extends State<EditContactScreen> {
     String phoneNumber = _phoneNumberController.text.trim();
 
     if (name.isNotEmpty && phoneNumber.isNotEmpty) {
-      Contact updatedContact = Contact(
-        name: name,
-        phoneNumbers: [
-          PhoneNumber(number: phoneNumber, type: _selectedPhoneType),
-        ],
+      Navigator.pop(
+        context,
+        AContact(
+          id: widget.contact.id,
+          name: name,
+          phoneNumber: phoneNumber,
+        ),
       );
-      Navigator.pop(context, updatedContact);
     }
   }
 }
 
-class Contact {
+class AContact {
+  String? id;
   String name;
-  List<PhoneNumber> phoneNumbers;
+  String phoneNumber;
 
-  Contact({required this.name, required this.phoneNumbers});
+  AContact({this.id, required this.name, required this.phoneNumber});
 
-  String get mobileNumber {
-    for (var phoneNumber in phoneNumbers) {
-      if (phoneNumber.type == PhoneType.mobile) {
-        return phoneNumber.number;
-      }
-    }
-    return '';
+  factory AContact.fromJson(Map<String, dynamic> json) {
+    return AContact(
+      id: json['id'] as String?,
+      name: json['name'] as String,
+      phoneNumber: json['phoneNumber'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'phoneNumber': phoneNumber,
+    };
   }
 }
-
-class PhoneNumber {
-  String number;
-  PhoneType type;
-  String? label;
-
-  PhoneNumber({required this.number, required this.type, this.label});
-
-  @override
-  String toString() {
-    return '${label ?? type.toString().split('.').last}: $number';
-  }
-}
-
-enum PhoneType { mobile, work, custom }
