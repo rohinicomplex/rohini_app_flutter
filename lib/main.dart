@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
         '/payonline': (context) => PayOnlineScreen(),
         '/notice': (context) => NoticeScreen(),
         '/chat': (context) => GroupChatScreen(),
-        '/event1': (context) => CommunityHallBookingScreen(),
+        '/event': (context) => CommunityHallBookingScreen(),
         '/ledger': (context) => LedgerScreen(),
         '/contacts': (context) => ContactsScreen(),
         '/approvals': (context) => ActivityApproval(),

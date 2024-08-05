@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class CommunityHallBookingScreen extends StatefulWidget {
   @override
@@ -17,10 +18,16 @@ class _CommunityHallBookingScreenState
   ];
 
   @override
+  void dispose() {
+    _eventNameController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Community Hall Booking'),
+        title: const Text('Community Hall Booking'),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -43,10 +50,10 @@ class _CommunityHallBookingScreenState
                 : () {
                     _showAddEventPopup(context);
                   },
-            child: Text('Add Event'),
+            child: const Text('Add Event'),
           ),
-          SizedBox(height: 20.0),
-          Text(
+          const SizedBox(height: 20.0),
+          const Text(
             'Selected Dates:',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
@@ -56,13 +63,13 @@ class _CommunityHallBookingScreenState
               itemBuilder: (context, index) {
                 return ListTile(
                   title: Text(
-                      '${_selectedDates[index].day}/${_selectedDates[index].month}/${_selectedDates[index].year}'),
+                      DateFormat('dd/MM/yyyy').format(_selectedDates[index])),
                 );
               },
             ),
           ),
-          SizedBox(height: 20.0),
-          Text(
+          const SizedBox(height: 20.0),
+          const Text(
             'Upcoming Bookings:',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
@@ -73,10 +80,10 @@ class _CommunityHallBookingScreenState
                 final event = _bookedEvents[index];
                 return ListTile(
                   title: Text(
-                    '${event['date'].day}/${event['date'].month}/${event['date'].year} - ${event['eventName']}',
+                    '${DateFormat('dd/MM/yyyy').format(event['date'])} - ${event['eventName']}',
                   ),
                   trailing: IconButton(
-                    icon: Icon(Icons.delete),
+                    icon: const Icon(Icons.delete),
                     onPressed: () {
                       _confirmDeleteEvent(context, index);
                     },
@@ -92,13 +99,33 @@ class _CommunityHallBookingScreenState
 
   void _toggleDateSelection(DateTime date) {
     if (_selectedDates.contains(date)) {
+      // Date is already selected, so deselect it
       setState(() {
         _selectedDates.remove(date);
       });
     } else {
-      setState(() {
-        _selectedDates.add(date);
-      });
+      if (_selectedDates.isEmpty) {
+        // Start a new selection
+        setState(() {
+          _selectedDates.add(date);
+        });
+      } else {
+        DateTime lastSelectedDate = _selectedDates.last;
+        if (date.difference(lastSelectedDate).inDays == 1) {
+          // Add consecutive date
+          setState(() {
+            _selectedDates.add(date);
+          });
+        } else if (date.difference(lastSelectedDate).inDays < 0) {
+          // Reset selection if a previous date is selected
+          setState(() {
+            _selectedDates = [date];
+          });
+        } else {
+          // Prevent non-consecutive date selection
+          _showErrorDialog('Please select consecutive dates.');
+        }
+      }
     }
   }
 
@@ -107,48 +134,51 @@ class _CommunityHallBookingScreenState
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Add Event'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Selected Dates:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10.0),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _selectedDates.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(
-                          '${_selectedDates[index].day}/${_selectedDates[index].month}/${_selectedDates[index].year}'),
-                    );
-                  },
+          title: const Text('Add Event'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Selected Dates:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-              ),
-              SizedBox(height: 10.0),
-              TextField(
-                controller: _eventNameController,
-                decoration: InputDecoration(
-                  hintText: 'Enter event name',
+                const SizedBox(height: 10.0),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: _selectedDates.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(DateFormat('dd/MM/yyyy')
+                            .format(_selectedDates[index])),
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 10.0),
+                TextField(
+                  controller: _eventNameController,
+                  decoration: const InputDecoration(
+                    hintText: 'Enter event name',
+                  ),
+                ),
+              ],
+            ),
           ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () {
                 _addEvent();
                 Navigator.of(context).pop();
               },
-              child: Text('Add'),
+              child: const Text('Add'),
             ),
           ],
         );
@@ -158,15 +188,28 @@ class _CommunityHallBookingScreenState
 
   void _addEvent() {
     String eventName = _eventNameController.text.trim();
-    if (eventName.isNotEmpty) {
-      setState(() {
-        _bookedEvents.add({
-          'date': _selectedDates[0], // Assume only one date is selected
-          'eventName': eventName,
+    if (eventName.isNotEmpty && _selectedDates.isNotEmpty) {
+      DateTime eventDate = _selectedDates.first;
+      bool isDuplicate = _bookedEvents.any(
+        (event) =>
+            event['date'] == eventDate && event['eventName'] == eventName,
+      );
+      if (!isDuplicate) {
+        setState(() {
+          _bookedEvents.add({
+            'date': eventDate,
+            'eventName': eventName,
+          });
+          _eventNameController.clear();
+          _selectedDates.clear();
         });
-        _eventNameController.clear();
-        _selectedDates.clear();
-      });
+      } else {
+        _showErrorDialog(
+            'An event with the same name already exists on this date.');
+      }
+    } else {
+      _showErrorDialog(
+          'Please select at least one date and enter an event name.');
     }
   }
 
@@ -175,21 +218,21 @@ class _CommunityHallBookingScreenState
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirm Delete'),
-          content: Text('Are you sure you want to delete this event?'),
+          title: const Text('Confirm Delete'),
+          content: const Text('Are you sure you want to delete this event?'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () {
                 _deleteEvent(index);
                 Navigator.of(context).pop();
               },
-              child: Text('Delete'),
+              child: const Text('Delete'),
             ),
           ],
         );
@@ -201,5 +244,25 @@ class _CommunityHallBookingScreenState
     setState(() {
       _bookedEvents.removeAt(index);
     });
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
