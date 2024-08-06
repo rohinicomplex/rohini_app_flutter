@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
 import 'dart:ui' as ui;
 import 'package:file_picker/file_picker.dart';
+import 'package:intl/intl.dart'; // Import for formatting currency
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ExpenseAddScreen extends StatefulWidget {
   @override
@@ -15,15 +18,48 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
   String _payeeName = '';
   String _reference = '';
   String _details = '';
+  String _receivedBy = '';
   String _selectedOption = '';
   GlobalKey<SfSignaturePadState> _signaturePadKey = GlobalKey();
-  List<Offset> _points = <Offset>[];
+  TextEditingController _amountController = TextEditingController();
+  List<String> _expenseTypes = [];
+  List<String> _payeeSuggestions = [];
+  List<String> _receivedBySuggestions = [];
 
-  final List<String> _expenseTypes = [
-    'Expense Type 1',
-    'Expense Type 2',
-    'Expense Type 3',
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _fetchSuggestions();
+  }
+
+  Future<void> _fetchSuggestions() async {
+    final expenseTypeResponse = await http
+        .get(Uri.parse('https://rohinicomplex.in/service/getMExpenseType.php'));
+    final payeeResponse = await http.get(
+        Uri.parse('https://rohinicomplex.in/services/getPastPaytoExp.php'));
+    final receivedByResponse = await http.get(
+        Uri.parse('https://rohinicomplex.in/services/getPastReceivedBy.php'));
+
+    if (expenseTypeResponse.statusCode == 200) {
+      setState(() {
+        _expenseTypes =
+            List<String>.from(json.decode(expenseTypeResponse.body));
+      });
+    }
+
+    if (payeeResponse.statusCode == 200) {
+      setState(() {
+        _payeeSuggestions = List<String>.from(json.decode(payeeResponse.body));
+      });
+    }
+
+    if (receivedByResponse.statusCode == 200) {
+      setState(() {
+        _receivedBySuggestions =
+            List<String>.from(json.decode(receivedByResponse.body));
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,25 +80,14 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
           children: [
             Text('Expense Type', style: TextStyle(fontSize: 16)),
             SizedBox(height: 8.0),
-            InkWell(
-              onTap: () {
-                _showExpenseTypeDialog(context);
+            _buildAutocompleteField(
+              label: 'Select Expense Type',
+              suggestions: _expenseTypes,
+              onChanged: (value) {
+                setState(() {
+                  _selectedExpenseType = value;
+                });
               },
-              child: InputDecorator(
-                decoration: InputDecoration(
-                  labelText: 'Select Expense Type',
-                  border: OutlineInputBorder(),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(_selectedExpenseType.isEmpty
-                        ? 'Select Expense Type'
-                        : _selectedExpenseType),
-                    Icon(Icons.arrow_drop_down),
-                  ],
-                ),
-              ),
             ),
             SizedBox(height: 16.0),
             InkWell(
@@ -83,6 +108,52 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
                   ],
                 ),
               ),
+            ),
+            SizedBox(height: 16.0),
+            TextFormField(
+              decoration: InputDecoration(labelText: 'Amount'),
+              controller: _amountController,
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 16.0),
+            _buildAutocompleteField(
+              label: 'Payment To',
+              suggestions: _payeeSuggestions,
+              onChanged: (value) {
+                setState(() {
+                  _payeeName = value;
+                });
+              },
+            ),
+            SizedBox(height: 16.0),
+            TextFormField(
+              decoration: InputDecoration(labelText: 'Reference'),
+              onChanged: (value) {
+                setState(() {
+                  _reference = value;
+                });
+              },
+            ),
+            SizedBox(height: 16.0),
+            TextFormField(
+              decoration: InputDecoration(labelText: 'Details'),
+              maxLines: null,
+              keyboardType: TextInputType.multiline,
+              onChanged: (value) {
+                setState(() {
+                  _details = value;
+                });
+              },
+            ),
+            SizedBox(height: 16.0),
+            _buildAutocompleteField(
+              label: 'Received By',
+              suggestions: _receivedBySuggestions,
+              onChanged: (value) {
+                setState(() {
+                  _receivedBy = value;
+                });
+              },
             ),
             SizedBox(height: 16.0),
             Text('Select Mode', style: TextStyle(fontSize: 16)),
@@ -114,35 +185,6 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
                   ),
                 ),
               ],
-            ),
-            SizedBox(height: 16.0),
-            TextFormField(
-              decoration: InputDecoration(labelText: 'Payment To'),
-              onChanged: (value) {
-                setState(() {
-                  _payeeName = value;
-                });
-              },
-            ),
-            SizedBox(height: 16.0),
-            TextFormField(
-              decoration: InputDecoration(labelText: 'Reference'),
-              onChanged: (value) {
-                setState(() {
-                  _reference = value;
-                });
-              },
-            ),
-            SizedBox(height: 16.0),
-            TextFormField(
-              decoration: InputDecoration(labelText: 'Details'),
-              maxLines: null,
-              keyboardType: TextInputType.multiline,
-              onChanged: (value) {
-                setState(() {
-                  _details = value;
-                });
-              },
             ),
             SizedBox(height: 16.0),
             Text('Select Option', style: TextStyle(fontSize: 16)),
@@ -197,28 +239,25 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
             if (_selectedOption == 'Voucher') ...[
               SizedBox(height: 16.0),
               Container(
-                height: 200,
                 decoration: BoxDecoration(
+                  color: Colors.white,
                   border: Border.all(color: Colors.black),
+                  borderRadius: BorderRadius.circular(8.0),
                 ),
                 child: SfSignaturePad(
                   key: _signaturePadKey,
                   backgroundColor: Colors.white,
+                  strokeColor: Colors.black,
+                  minimumStrokeWidth: 2.0,
+                  maximumStrokeWidth: 2.0,
                 ),
               ),
-              SizedBox(height: 8.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: _clearSignature,
-                    child: Text('Clear'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _saveSignature,
-                    child: Text('Save'),
-                  ),
-                ],
+              SizedBox(
+                  height:
+                      16.0), // Gap between the signature panel and the clear button
+              ElevatedButton(
+                onPressed: _clearSignature,
+                child: Text('Clear Signature'),
               ),
             ],
             SizedBox(height: 16.0),
@@ -245,6 +284,43 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
       });
   }
 
+  Widget _buildAutocompleteField({
+    required String label,
+    required List<String> suggestions,
+    required Function(String) onChanged,
+  }) {
+    return Autocomplete<String>(
+      optionsBuilder: (TextEditingValue textEditingValue) {
+        if (textEditingValue.text.isEmpty) {
+          return const Iterable<String>.empty();
+        }
+        return suggestions.where((String option) {
+          return option
+              .toLowerCase()
+              .contains(textEditingValue.text.toLowerCase());
+        });
+      },
+      onSelected: (String selection) {
+        onChanged(selection);
+      },
+      fieldViewBuilder: (
+        BuildContext context,
+        TextEditingController textEditingController,
+        FocusNode focusNode,
+        VoidCallback onFieldSubmitted,
+      ) {
+        return TextFormField(
+          controller: textEditingController,
+          focusNode: focusNode,
+          decoration: InputDecoration(labelText: label),
+          onChanged: (value) {
+            onChanged(value);
+          },
+        );
+      },
+    );
+  }
+
   void _chooseFileFromSystem() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -254,142 +330,38 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
       if (result != null) {
         PlatformFile file = result.files.first;
         print('File picked: ${file.name}');
-        // Handle the picked file here
-      } else {
-        print('User canceled file picking');
+        // Handle file selection
       }
     } catch (e) {
-      print('Error picking file: $e');
+      // Handle errors
     }
   }
 
   void _takePicture() async {
-    /* try {
-      final cameras = await availableCameras();
-      final firstCamera = cameras.first;
-      final CameraController cameraController = CameraController(
-        firstCamera,
-        ResolutionPreset.medium,
-      );
-      await cameraController.initialize();
-      final XFile imageFile = await cameraController.takePicture();
-      print('Picture taken: ${imageFile.path}');
-      // Handle the taken picture here
-    } catch (e) {
-      print('Error taking picture: $e');
-    }*/
-  }
-
-  Future<void> _showExpenseTypeDialog(BuildContext context) async {
-    final String? selectedType = await showDialog<String>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Select Expense Type'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: _expenseTypes
-                  .map((type) => ListTile(
-                        title: Text(type),
-                        onTap: () {
-                          Navigator.of(context).pop(type);
-                        },
-                      ))
-                  .toList(),
-            ),
-          ),
-        );
-      },
-    );
-
-    if (selectedType != null) {
-      setState(() {
-        _selectedExpenseType = selectedType;
-      });
-    }
+    // Implement taking picture functionality
   }
 
   void _importBankTransactions() async {
-    final selectedTransaction = await showDialog<String>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Select Bank Transaction'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                ListTile(
-                  title: Text('Transaction 1'),
-                  onTap: () {
-                    Navigator.of(context).pop('Transaction 1');
-                  },
-                ),
-                ListTile(
-                  title: Text('Transaction 2'),
-                  onTap: () {
-                    Navigator.of(context).pop('Transaction 2');
-                  },
-                ),
-                ListTile(
-                  title: Text('Transaction 3'),
-                  onTap: () {
-                    Navigator.of(context).pop('Transaction 3');
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-
-    if (selectedTransaction != null) {
-      setState(() {
-        // Handle selected transaction
-      });
-    }
+    // Implement import bank transactions functionality
   }
 
   void _clearSignature() {
-    _signaturePadKey.currentState!.clear();
+    _signaturePadKey.currentState?.clear();
   }
 
   void _saveSignature() async {
-    /* final ui.Image image = await _signaturePadKey.currentState!.toImage();
-    final ByteData? bytes =
-        await image.toByteData(format: ui.ImageByteFormat.png);
-    final Uint8List pngBytes = bytes!.buffer.asUint8List();
-    // Handle the saved signature image here, e.g., upload it to a server or save it locally
-    print('Signature saved: ${pngBytes.lengthInBytes} bytes');*/
-  }
-
-  void _submitForm() {
-    // Add logic to handle form submission, including validation
-    print('Form submitted');
-  }
-}
-
-class _SignaturePainter extends CustomPainter {
-  final List<Offset> points;
-
-  _SignaturePainter(this.points);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.black
-      ..strokeWidth = 2.0
-      ..strokeCap = StrokeCap.round;
-
-    for (int i = 0; i < points.length - 1; i++) {
-      if (points[i] != null && points[i + 1] != null) {
-        canvas.drawLine(points[i], points[i + 1], paint);
-      }
+    final ui.Image? image = await _signaturePadKey.currentState?.toImage();
+    if (image != null) {
+      /* final ByteData? byteData =
+          await image.toByteData(format: ui.ImageByteFormat.png);
+      final Uint8List? uint8List = byteData?.buffer.asUint8List();
+      if (uint8List != null) {
+        // Save or upload the signature image
+      }*/
     }
   }
 
-  @override
-  bool shouldRepaint(_SignaturePainter oldDelegate) {
-    return oldDelegate.points != points;
+  void _submitForm() {
+    // Implement form submission functionality
   }
 }

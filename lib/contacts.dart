@@ -12,11 +12,14 @@ class ContactsScreen extends StatefulWidget {
 
 class _ContactsScreenState extends State<ContactsScreen> {
   List<AContact> _contacts = [];
+  List<AContact> _filteredContacts = [];
+  TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fetchContacts();
+    _searchController.addListener(_filterContacts);
   }
 
   Future<void> _fetchContacts() async {
@@ -29,6 +32,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
       final List<dynamic> data = json.decode(response.body);
       setState(() {
         _contacts = data.map((contact) => AContact.fromJson(contact)).toList();
+        _filteredContacts = _contacts;
       });
     } else {
       // Handle error
@@ -95,6 +99,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
       if (value != null && value is AContact) {
         setState(() {
           _contacts.add(value);
+          _filteredContacts = _contacts;
         });
         _saveContactToServer(value);
       }
@@ -110,6 +115,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
       if (value != null && value is AContact) {
         setState(() {
           _contacts[index] = value;
+          _filteredContacts = _contacts;
         });
         _saveContactToServer(value);
       }
@@ -135,6 +141,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
                 _deleteContactFromServer(_contacts[index].id!);
                 setState(() {
                   _contacts.removeAt(index);
+                  _filteredContacts = _contacts;
                 });
                 Navigator.of(context).pop();
               },
@@ -165,62 +172,102 @@ class _ContactsScreenState extends State<ContactsScreen> {
     }
   }
 
+  void _filterContacts() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredContacts = _contacts.where((contact) {
+        return contact.name.toLowerCase().contains(query) ||
+            contact.phoneNumber.contains(query);
+      }).toList();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_filterContacts);
+    _searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Contacts'),
       ),
-      body: ListView.builder(
-        itemCount: _contacts.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(_contacts[index].name),
-            subtitle: GestureDetector(
-              onTap: () {
-                _launchURL('tel:${_contacts[index].phoneNumber}');
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                labelText: 'Search',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _filteredContacts.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(_filteredContacts[index].name),
+                  subtitle: GestureDetector(
+                    onTap: () {
+                      _launchURL('tel:${_filteredContacts[index].phoneNumber}');
+                    },
+                    child:
+                        Text('Phone: ${_filteredContacts[index].phoneNumber}'),
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.phone),
+                        onPressed: () {
+                          _launchURL(
+                              'tel:${_filteredContacts[index].phoneNumber}');
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.message),
+                        onPressed: () {
+                          _launchURL(
+                              'sms:${_filteredContacts[index].phoneNumber}');
+                        },
+                      ),
+                      PopupMenuButton<String>(
+                        onSelected: (value) {
+                          if (value == 'edit') {
+                            _navigateToEditContact(
+                                context, _filteredContacts[index], index);
+                          } else if (value == 'delete') {
+                            _confirmDeleteContact(context, index);
+                          } else if (value == 'save_to_phone') {
+                            _saveContactToPhone(_filteredContacts[index]);
+                          }
+                        },
+                        itemBuilder: (BuildContext context) {
+                          return {'Edit', 'Delete', 'Save to Phone'}
+                              .map((String choice) {
+                            return PopupMenuItem<String>(
+                              value: choice.toLowerCase().replaceAll(' ', '_'),
+                              child: Text(choice),
+                            );
+                          }).toList();
+                        },
+                      ),
+                    ],
+                  ),
+                );
               },
-              child: Text('Phone: ${_contacts[index].phoneNumber}'),
             ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.phone),
-                  onPressed: () {
-                    _launchURL('tel:${_contacts[index].phoneNumber}');
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.message),
-                  onPressed: () {
-                    _launchURL('sms:${_contacts[index].phoneNumber}');
-                  },
-                ),
-                PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'edit') {
-                      _navigateToEditContact(context, _contacts[index], index);
-                    } else if (value == 'delete') {
-                      _confirmDeleteContact(context, index);
-                    } else if (value == 'save_to_phone') {
-                      _saveContactToPhone(_contacts[index]);
-                    }
-                  },
-                  itemBuilder: (BuildContext context) {
-                    return {'Edit', 'Delete', 'Save to Phone'}
-                        .map((String choice) {
-                      return PopupMenuItem<String>(
-                        value: choice.toLowerCase().replaceAll(' ', '_'),
-                        child: Text(choice),
-                      );
-                    }).toList();
-                  },
-                ),
-              ],
-            ),
-          );
-        },
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -280,7 +327,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
     if (name.isNotEmpty && phoneNumber.isNotEmpty) {
       Navigator.pop(
         context,
-        AContact(id: null, name: name, phoneNumber: phoneNumber),
+        AContact(name: name, phoneNumber: phoneNumber),
       );
     }
   }
