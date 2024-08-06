@@ -134,6 +134,8 @@ class LandingPage extends StatelessWidget {
                     label: 'Add Income',
                     onTap: () {
                       // Navigate to Add Income screen
+                      //
+                      Navigator.pushNamed(context, '/customersel');
                     },
                   ),
                   NavigationButton(
