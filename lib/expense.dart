@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-//import 'package:camera/camera.dart';
+import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
+import 'dart:ui' as ui;
 import 'package:file_picker/file_picker.dart';
 
 class ExpenseAddScreen extends StatefulWidget {
@@ -15,14 +16,13 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
   String _reference = '';
   String _details = '';
   String _selectedOption = '';
-  bool _isSigning = false; // Flag to track if signing is in progress
+  GlobalKey<SfSignaturePadState> _signaturePadKey = GlobalKey();
   List<Offset> _points = <Offset>[];
 
   final List<String> _expenseTypes = [
     'Expense Type 1',
     'Expense Type 2',
     'Expense Type 3',
-    // Add more expense types here
   ];
 
   @override
@@ -175,7 +175,6 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
                 ),
               ],
             ),
-            // Handle choosing file or taking picture
             if (_selectedOption == 'Receipt') ...[
               SizedBox(height: 16.0),
               Row(
@@ -197,27 +196,34 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
             SizedBox(height: 16.0),
             if (_selectedOption == 'Voucher') ...[
               SizedBox(height: 16.0),
-              GestureDetector(
-                onTapDown: _handleTapDown,
-                onPanUpdate: _handlePanUpdate,
-                onPanEnd: _handlePanEnd,
-                child: Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
-                  ),
-                  child: CustomPaint(
-                    painter: _SignaturePainter(_points),
-                    size: Size.infinite,
-                  ),
+              Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.black),
                 ),
+                child: SfSignaturePad(
+                  key: _signaturePadKey,
+                  backgroundColor: Colors.white,
+                ),
+              ),
+              SizedBox(height: 8.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: _clearSignature,
+                    child: Text('Clear'),
+                  ),
+                  ElevatedButton(
+                    onPressed: _saveSignature,
+                    child: Text('Save'),
+                  ),
+                ],
               ),
             ],
             SizedBox(height: 16.0),
             ElevatedButton(
-              onPressed: () {
-                // Implement submit action
-              },
+              onPressed: _submitForm,
               child: Text('Submit'),
             ),
           ],
@@ -240,33 +246,25 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
   }
 
   void _chooseFileFromSystem() async {
-    // Implement file choosing from the system
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom, // Specify the type of file you want to pick
-        allowedExtensions: [
-          'pdf',
-          'doc',
-          'docx'
-        ], // Specify allowed file extensions
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'doc', 'docx'],
       );
       if (result != null) {
         PlatformFile file = result.files.first;
         print('File picked: ${file.name}');
         // Handle the picked file here
       } else {
-        // User canceled the file picking operation
         print('User canceled file picking');
       }
     } catch (e) {
-      // Handle any errors that occur during file picking
       print('Error picking file: $e');
     }
   }
 
   void _takePicture() async {
-    // Implement taking a picture through the camera
-    /*try {
+    /* try {
       final cameras = await availableCameras();
       final firstCamera = cameras.first;
       final CameraController cameraController = CameraController(
@@ -278,7 +276,6 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
       print('Picture taken: ${imageFile.path}');
       // Handle the taken picture here
     } catch (e) {
-      // Handle any errors that occur during picture taking
       print('Error taking picture: $e');
     }*/
   }
@@ -313,7 +310,6 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
   }
 
   void _importBankTransactions() async {
-    // Implement importing bank transactions and showing a popup dialog
     final selectedTransaction = await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
@@ -334,7 +330,12 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
                     Navigator.of(context).pop('Transaction 2');
                   },
                 ),
-                // Add more transactions as needed
+                ListTile(
+                  title: Text('Transaction 3'),
+                  onTap: () {
+                    Navigator.of(context).pop('Transaction 3');
+                  },
+                ),
               ],
             ),
           ),
@@ -343,45 +344,42 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
     );
 
     if (selectedTransaction != null) {
-      // Update reference and amount based on the selected transaction
       setState(() {
-        _reference = selectedTransaction;
-        // Update amount if needed
+        // Handle selected transaction
       });
     }
   }
 
-  void _handleTapDown(TapDownDetails details) {
-    setState(() {
-      _points.add(details.localPosition);
-    });
+  void _clearSignature() {
+    _signaturePadKey.currentState!.clear();
   }
 
-  void _handlePanUpdate(DragUpdateDetails details) {
-    setState(() {
-      _points.add(details.localPosition);
-    });
+  void _saveSignature() async {
+    /* final ui.Image image = await _signaturePadKey.currentState!.toImage();
+    final ByteData? bytes =
+        await image.toByteData(format: ui.ImageByteFormat.png);
+    final Uint8List pngBytes = bytes!.buffer.asUint8List();
+    // Handle the saved signature image here, e.g., upload it to a server or save it locally
+    print('Signature saved: ${pngBytes.lengthInBytes} bytes');*/
   }
 
-  void _handlePanEnd(DragEndDetails details) {
-    setState(() {
-      //_points.add(Offset());
-      //_points.add(o);
-    });
+  void _submitForm() {
+    // Add logic to handle form submission, including validation
+    print('Form submitted');
   }
 }
 
 class _SignaturePainter extends CustomPainter {
-  List<Offset> points;
+  final List<Offset> points;
 
   _SignaturePainter(this.points);
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint()
+    final paint = Paint()
       ..color = Colors.black
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = 5.0;
+      ..strokeWidth = 2.0
+      ..strokeCap = StrokeCap.round;
 
     for (int i = 0; i < points.length - 1; i++) {
       if (points[i] != null && points[i + 1] != null) {
@@ -391,7 +389,7 @@ class _SignaturePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
+  bool shouldRepaint(_SignaturePainter oldDelegate) {
+    return oldDelegate.points != points;
   }
 }
