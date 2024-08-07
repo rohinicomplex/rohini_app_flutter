@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
-import 'dart:ui' as ui;
 import 'package:file_picker/file_picker.dart';
-import 'package:intl/intl.dart'; // Import for formatting currency
+import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -61,6 +60,11 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
     }
   }
 
+  String _formatCurrency(String value) {
+    final format = NumberFormat.currency(locale: 'en_IN', symbol: '₹');
+    return format.format(double.parse(value));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,14 +84,25 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
           children: [
             Text('Expense Type', style: TextStyle(fontSize: 16)),
             SizedBox(height: 8.0),
-            _buildAutocompleteField(
-              label: 'Select Expense Type',
-              suggestions: _expenseTypes,
-              onChanged: (value) {
+            DropdownButtonFormField<String>(
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+              value:
+                  _selectedExpenseType.isNotEmpty ? _selectedExpenseType : null,
+              hint: Text('Select Expense Type'),
+              onChanged: (String? newValue) {
                 setState(() {
-                  _selectedExpenseType = value;
+                  _selectedExpenseType = newValue!;
                 });
               },
+              items:
+                  _expenseTypes.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
             ),
             SizedBox(height: 16.0),
             InkWell(
@@ -114,6 +129,48 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
               decoration: InputDecoration(labelText: 'Amount'),
               controller: _amountController,
               keyboardType: TextInputType.number,
+              /*onChanged: (value) {
+                if (value.isNotEmpty) {
+                  final formattedValue =
+                      _formatCurrency(value.replaceAll(RegExp(r'[^0-9]'), ''));
+                  _amountController.value = TextEditingValue(
+                    text: formattedValue,
+                    selection:
+                        TextSelection.collapsed(offset: formattedValue.length),
+                  );
+                }
+              },*/
+            ),
+            SizedBox(height: 16.0),
+            Text('Select Mode', style: TextStyle(fontSize: 16)),
+            SizedBox(height: 8.0),
+            Row(
+              children: [
+                Expanded(
+                  child: RadioListTile<String>(
+                    title: Text('Cash'),
+                    value: 'Cash',
+                    groupValue: _selectedMode,
+                    onChanged: (String? value) {
+                      setState(() {
+                        _selectedMode = value!;
+                      });
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: RadioListTile<String>(
+                    title: Text('Bank'),
+                    value: 'Bank',
+                    groupValue: _selectedMode,
+                    onChanged: (String? value) {
+                      setState(() {
+                        _selectedMode = value!;
+                      });
+                    },
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: 16.0),
             _buildAutocompleteField(
@@ -154,37 +211,6 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
                   _receivedBy = value;
                 });
               },
-            ),
-            SizedBox(height: 16.0),
-            Text('Select Mode', style: TextStyle(fontSize: 16)),
-            SizedBox(height: 8.0),
-            Row(
-              children: [
-                Expanded(
-                  child: RadioListTile<String>(
-                    title: Text('Cash'),
-                    value: 'Cash',
-                    groupValue: _selectedMode,
-                    onChanged: (String? value) {
-                      setState(() {
-                        _selectedMode = value!;
-                      });
-                    },
-                  ),
-                ),
-                Expanded(
-                  child: RadioListTile<String>(
-                    title: Text('Bank'),
-                    value: 'Bank',
-                    groupValue: _selectedMode,
-                    onChanged: (String? value) {
-                      setState(() {
-                        _selectedMode = value!;
-                      });
-                    },
-                  ),
-                ),
-              ],
             ),
             SizedBox(height: 16.0),
             Text('Select Option', style: TextStyle(fontSize: 16)),
@@ -238,26 +264,31 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
             SizedBox(height: 16.0),
             if (_selectedOption == 'Voucher') ...[
               SizedBox(height: 16.0),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: Colors.black),
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: SfSignaturePad(
-                  key: _signaturePadKey,
-                  backgroundColor: Colors.white,
-                  strokeColor: Colors.black,
-                  minimumStrokeWidth: 2.0,
-                  maximumStrokeWidth: 2.0,
-                ),
-              ),
-              SizedBox(
-                  height:
-                      16.0), // Gap between the signature panel and the clear button
-              ElevatedButton(
-                onPressed: _clearSignature,
-                child: Text('Clear Signature'),
+              Stack(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: Colors.black),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: SfSignaturePad(
+                      key: _signaturePadKey,
+                      backgroundColor: Colors.white,
+                      strokeColor: Colors.black,
+                      minimumStrokeWidth: 2.0,
+                      maximumStrokeWidth: 2.0,
+                    ),
+                  ),
+                  Positioned(
+                    right: 8.0,
+                    top: 8.0,
+                    child: IconButton(
+                      icon: Icon(Icons.delete, color: Colors.red),
+                      onPressed: _clearSignature,
+                    ),
+                  ),
+                ],
               ),
             ],
             SizedBox(height: 16.0),
@@ -276,7 +307,7 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(1900),
-      lastDate: DateTime(2101),
+      lastDate: DateTime.now(),
     );
     if (picked != null && picked != _selectedDate)
       setState(() {
@@ -287,7 +318,7 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
   Widget _buildAutocompleteField({
     required String label,
     required List<String> suggestions,
-    required Function(String) onChanged,
+    required ValueChanged<String> onChanged,
   }) {
     return Autocomplete<String>(
       optionsBuilder: (TextEditingValue textEditingValue) {
@@ -303,14 +334,12 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
       onSelected: (String selection) {
         onChanged(selection);
       },
-      fieldViewBuilder: (
-        BuildContext context,
-        TextEditingController textEditingController,
-        FocusNode focusNode,
-        VoidCallback onFieldSubmitted,
-      ) {
+      fieldViewBuilder: (BuildContext context,
+          TextEditingController fieldTextEditingController,
+          FocusNode focusNode,
+          VoidCallback onFieldSubmitted) {
         return TextFormField(
-          controller: textEditingController,
+          controller: fieldTextEditingController,
           focusNode: focusNode,
           decoration: InputDecoration(labelText: label),
           onChanged: (value) {
@@ -325,43 +354,64 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['pdf', 'doc', 'docx'],
+        allowedExtensions: ['jpg', 'pdf', 'doc'],
       );
       if (result != null) {
-        PlatformFile file = result.files.first;
-        print('File picked: ${file.name}');
-        // Handle file selection
+        // Handle selected file
       }
     } catch (e) {
-      // Handle errors
+      // Handle error
     }
   }
 
-  void _takePicture() async {
-    // Implement taking picture functionality
-  }
-
-  void _importBankTransactions() async {
-    // Implement import bank transactions functionality
+  void _takePicture() {
+    // Handle taking a picture
   }
 
   void _clearSignature() {
-    _signaturePadKey.currentState?.clear();
+    _signaturePadKey.currentState!.clear();
   }
 
-  void _saveSignature() async {
-    final ui.Image? image = await _signaturePadKey.currentState?.toImage();
-    if (image != null) {
-      /* final ByteData? byteData =
-          await image.toByteData(format: ui.ImageByteFormat.png);
-      final Uint8List? uint8List = byteData?.buffer.asUint8List();
-      if (uint8List != null) {
-        // Save or upload the signature image
-      }*/
+  void _importBankTransactions() async {
+    // Implement importing bank transactions and showing a popup dialog
+    final selectedTransaction = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Select Bank Transaction'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                ListTile(
+                  title: Text('Transaction 1'),
+                  onTap: () {
+                    Navigator.of(context).pop('Transaction 1');
+                  },
+                ),
+                ListTile(
+                  title: Text('Transaction 2'),
+                  onTap: () {
+                    Navigator.of(context).pop('Transaction 2');
+                  },
+                ),
+                // Add more transactions as needed
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (selectedTransaction != null) {
+      // Update reference and amount based on the selected transaction
+      setState(() {
+        _reference = selectedTransaction;
+        // Update amount if needed
+      });
     }
   }
 
   void _submitForm() {
-    // Implement form submission functionality
+    // Handle form submission
   }
 }

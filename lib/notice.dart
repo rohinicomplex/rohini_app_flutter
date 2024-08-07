@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'storage.dart';
 
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -19,17 +20,44 @@ class _NoticeScreenState extends State<NoticeScreen> {
   }
 
   Future<void> _fetchNotice() async {
+    setState(() {
+      _htmlContent = '<html><body><h1>Fetch called...</h1></body></html>';
+    });
+    String user = await LocalAppStorage().getUserName();
+    String token = await LocalAppStorage().getToken();
+    Map<String, String> requestHeaders = {'token': token, 'usertk': user};
+
+    var map = new Map<String, String>();
+    map['userName'] = user;
     final response = await http.post(
       Uri.parse('https://rohinicomplex.in/service/getNotice.php'),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({}), // Add any necessary parameters here
+      headers: requestHeaders,
+      body: map,
     );
-
+    setState(() {
+      _htmlContent = '<html><body><h1>Parsed...</h1></body></html>';
+    });
     if (response.statusCode == 200) {
       setState(() {
-        // Decode the base64 encoded response body
-        _htmlContent = utf8.decode(base64Decode(response.body));
+        _htmlContent = '<html><body><h1>status 200...</h1></body></html>';
       });
+      final List<dynamic> jsonResponse = json.decode(response.body);
+      if (jsonResponse.isNotEmpty && jsonResponse[0]['content'] != null) {
+        final String base64Content = jsonResponse[0]['content'];
+        setState(() {
+          _htmlContent =
+              '<html><body><h1>' + base64Content + '</h1></body></html>';
+        });
+        final String decodedContent = utf8.decode(base64Decode(base64Content));
+        setState(() {
+          _htmlContent = decodedContent;
+        });
+      } else {
+        setState(() {
+          _htmlContent =
+              '<html><body><h1>No content available</h1></body></html>';
+        });
+      }
     } else {
       setState(() {
         _htmlContent =
