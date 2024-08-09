@@ -254,21 +254,31 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
     String token = await LocalAppStorage().getToken();
     Map<String, String> requestHeaders = {'token': token, 'usertk': user};
 
-    var map = new Map<String, String>();
+    var map = new Map<String, dynamic>();
     map['selfpay'] = 'true';
     map['userid'] = _selectedItems[0].userID.toString();
     map['vide'] = '1';
     map['amount'] = totalAmount.toString();
     map['date'] = totalAmount.toString();
-//receivedby:getStoredUserid(),chargeDTL:chargeitemStr,billno:'',ref:'', wfAmt:wftot,wfdetail:wfitemStr,wfReason: wfReasonv})
+    map['receivedby'] = user;
+    map['chargeDTL'] = chargeitemStr;
+    map['billno'] = '';
+    map['ref'] = '';
+    map['wfAmt'] = wftot;
+    map['wfdetail'] = wfitemStr;
+    map['wfReason'] = wfReasonv;
+//receivedby:getStoredUserid(),chargeDTL:chargeitemStr,billno:'',ref:'',
+// wfAmt:wftot,wfdetail:wfitemStr,wfReason: wfReasonv})
     try {
       final response = await http.post(
-        Uri.parse('https://rohinicomplex.in/service/getSelfPayCharges.php'),
+        Uri.parse('https://rohinicomplex.in/service/addPayment.php'),
         headers: requestHeaders,
         body: map,
       );
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
+        var data = json.decode(response.body);
+        if (data['result'] > 0) {}
+
         setState(() {
           _payItems = data.map((json) => PayItem.fromJson(json)).toList();
           print(_payItems.length);
