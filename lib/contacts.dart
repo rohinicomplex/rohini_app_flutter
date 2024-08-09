@@ -82,11 +82,16 @@ class _ContactsScreenState extends State<ContactsScreen> {
 
     if (response.statusCode == 200) {
       // Handle success
-      /*String s = json.decode(response.body);
-      if(s["status"] == )*/
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Contact deleted successfully')),
-      );
+      var s = json.decode(response.body);
+      if (s["status"] == 1) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Contact deleted successfully')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to delete contact')),
+        );
+      }
     } else {
       // Handle error
       ScaffoldMessenger.of(context).showSnackBar(
