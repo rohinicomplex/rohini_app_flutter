@@ -4,6 +4,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'storage.dart';
 
 class ContactsScreen extends StatefulWidget {
   @override
@@ -23,9 +24,10 @@ class _ContactsScreenState extends State<ContactsScreen> {
   }
 
   Future<void> _fetchContacts() async {
+    String user = await LocalAppStorage().getUserName();
     final response = await http.post(
       Uri.parse('https://rohinicomplex.in/service/getAllContacts.php'),
-      body: {'userName': 'yourUsername'},
+      body: {'userName': user},
     );
 
     if (response.statusCode == 200) {
@@ -41,13 +43,20 @@ class _ContactsScreenState extends State<ContactsScreen> {
   }
 
   Future<void> _saveContactToServer(AContact contact) async {
+    String user = await LocalAppStorage().getUserName();
     final response = await http.post(
       Uri.parse('https://rohinicomplex.in/service/saveContact.php'),
       body: {
         'id': contact.id ?? '',
-        'name': contact.name,
-        'phoneNumber': contact.phoneNumber,
-        'userName': 'yourUsername'
+        'fname': contact.name,
+        'mobile': contact.phoneNumber,
+        'userName': user,
+        'lname': '',
+        'work': '',
+        'home': '',
+        'email': '',
+        'note': '',
+        'category': 2,
       },
     );
 
@@ -65,13 +74,16 @@ class _ContactsScreenState extends State<ContactsScreen> {
   }
 
   Future<void> _deleteContactFromServer(String id) async {
+    String user = await LocalAppStorage().getUserName();
     final response = await http.post(
       Uri.parse('https://rohinicomplex.in/service/deleteContact.php'),
-      body: {'id': id},
+      body: {'id': id, 'userName': user},
     );
 
     if (response.statusCode == 200) {
       // Handle success
+      /*String s = json.decode(response.body);
+      if(s["status"] == )*/
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Contact deleted successfully')),
       );
