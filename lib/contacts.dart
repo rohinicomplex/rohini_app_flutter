@@ -424,8 +424,8 @@ class AContact {
   factory AContact.fromJson(Map<String, dynamic> json) {
     return AContact(
       id: json['id'] as String?,
-      name: json['name'] as String,
-      phoneNumber: json['phoneNumber'] as String,
+      name: json['fname'] as String,
+      phoneNumber: json['mobile'] as String,
     );
   }
 
