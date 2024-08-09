@@ -5,12 +5,22 @@ class LandingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: const Icon(Icons.account_circle),
+              onPressed: () {
+                Navigator.pushNamed(context, '/profile');
+              },
+            );
+          },
+        ),
         title: Text('Rohini Complex'),
         actions: [
           IconButton(
-            icon: Icon(Icons.account_circle),
+            icon: Icon(Icons.notification_important),
             onPressed: () {
-              Navigator.pushNamed(context, '/settings');
+              Navigator.pushNamed(context, '/notification');
             },
           ),
         ],
@@ -87,10 +97,10 @@ class LandingPage extends StatelessWidget {
                     },
                   ),
                   NavigationButton(
-                    icon: Icons.chat,
-                    label: 'Chat',
+                    icon: Icons.settings,
+                    label: 'Settings',
                     onTap: () {
-                      Navigator.pushNamed(context, '/chat');
+                      Navigator.pushNamed(context, '/settings');
                     },
                   ),
                   NavigationButton(
@@ -169,11 +179,11 @@ class LandingPage extends StatelessWidget {
                   },
                 ),
                 BottomButton(
-                  icon: Icons.person,
-                  label: 'Me',
+                  icon: Icons.perm_contact_calendar_outlined,
+                  label: 'Gate Pass',
                   onTap: () {
                     // Handle Me button tap
-                    Navigator.pushNamed(context, '/profile');
+                    Navigator.pushNamed(context, '/gatepass');
                   },
                 ),
                 BottomButton(
@@ -185,10 +195,10 @@ class LandingPage extends StatelessWidget {
                   },
                 ),
                 BottomButton(
-                  icon: Icons.notifications_active,
-                  label: 'Notification',
+                  icon: Icons.chat,
+                  label: 'Chat',
                   onTap: () {
-                    Navigator.pushNamed(context, '/notification');
+                    Navigator.pushNamed(context, '/chat');
                     // Handle Settings button tap
                   },
                 ),

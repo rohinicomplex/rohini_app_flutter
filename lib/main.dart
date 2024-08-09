@@ -11,6 +11,7 @@ import 'ledger.dart';
 import 'profile.dart';
 import 'settings.dart';
 import 'notice.dart';
+import 'gatepass.dart';
 import 'payonline.dart';
 import 'expense.dart';
 import 'income.dart';
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
         '/ledger': (context) => LedgerScreen(),
         '/contacts': (context) => ContactsScreen(),
         '/approvals': (context) => ActivityApproval(),
+        '/gatepass': (context) => GatePassScreen(),
         '/settings': (context) => SettingsPage(),
         '/customersel': (context) => CustomerSelectionScreen(),
         '/chargesel': (context) => ChargesSelectionScreen(),

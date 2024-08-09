@@ -260,7 +260,7 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
     map['vide'] = '1';
     map['amount'] = totalAmount.toString();
     map['date'] = totalAmount.toString();
-
+//receivedby:getStoredUserid(),chargeDTL:chargeitemStr,billno:'',ref:'', wfAmt:wftot,wfdetail:wfitemStr,wfReason: wfReasonv})
     try {
       final response = await http.post(
         Uri.parse('https://rohinicomplex.in/service/getSelfPayCharges.php'),

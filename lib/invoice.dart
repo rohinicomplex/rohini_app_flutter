@@ -443,25 +443,23 @@ class InvoiceItemWidget extends StatelessWidget {
     );
   }
 
-  void _downloadReceipt(BuildContext context, billid, payid, userid) {
-    // Logic to download receipt
-    // This function could navigate to a page to download the receipt or perform other actions.
-    String s = 'https://rohinicomplex.in/download/downloadMyBill.php?p=' +
-        payid +
-        '-' +
-        userid +
-        '-' +
-        billid;
+  void _downloadReceipt(
+      BuildContext context, String billid, String payid, String userid) {
+    String url =
+        'https://rohinicomplex.in/download/downloadMyBill.php?p=$payid-$userid-$billid';
+    String fileName = "EBill-$billid.pdf";
+
     FileDownloader.downloadFile(
-        url: s,
-        name: "EBill-" + billid + ".pdf",
-        downloadDestination: DownloadDestinations.appFiles,
-        notificationType: NotificationType.all,
-        onDownloadCompleted: (String path) {
-          _showMessage(context, "EBill-" + billid + ".pdf downloaded");
-        },
-        onDownloadError: (String error) {
-          _showMessage(context, "Unable to download file");
-        });
+      url: url,
+      name: fileName,
+      downloadDestination: DownloadDestinations.appFiles,
+      notificationType: NotificationType.all,
+      onDownloadCompleted: (String path) {
+        _showMessage(context, "$fileName downloaded");
+      },
+      onDownloadError: (String error) {
+        _showMessage(context, "Unable to download file: $error");
+      },
+    );
   }
 }
