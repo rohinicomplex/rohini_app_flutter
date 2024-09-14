@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -455,6 +456,9 @@ class InvoiceItemWidget extends StatelessWidget {
       downloadDestination: DownloadDestinations.appFiles,
       notificationType: NotificationType.all,
       onDownloadCompleted: (String path) {
+        File downloadedFile = File(path);
+        downloadedFile.renameSync(fileName);
+
         _showMessage(context, "$fileName downloaded");
       },
       onDownloadError: (String error) {

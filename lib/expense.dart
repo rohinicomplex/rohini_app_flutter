@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'storage.dart';
 
 class ExpenseAddScreen extends StatefulWidget {
   @override
@@ -32,12 +33,28 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
   }
 
   Future<void> _fetchSuggestions() async {
-    final expenseTypeResponse = await http
-        .get(Uri.parse('https://rohinicomplex.in/service/getMExpenseType.php'));
-    final payeeResponse = await http.get(
-        Uri.parse('https://rohinicomplex.in/services/getPastPaytoExp.php'));
-    final receivedByResponse = await http.get(
-        Uri.parse('https://rohinicomplex.in/services/getPastReceivedBy.php'));
+    String user = await LocalAppStorage().getUserName();
+    String token = await LocalAppStorage().getToken();
+    Map<String, String> requestHeaders = {'token': token, 'usertk': user};
+
+    var map = new Map<String, String>();
+    map['userName'] = user;
+
+    final expenseTypeResponse = await http.post(
+      Uri.parse('https://rohinicomplex.in/service/getMExpenseType.php'),
+      headers: requestHeaders,
+      body: map,
+    );
+    final payeeResponse = await http.post(
+      Uri.parse('https://rohinicomplex.in/service/getPastPaytoExp.php'),
+      headers: requestHeaders,
+      body: map,
+    );
+    final receivedByResponse = await http.post(
+      Uri.parse('https://rohinicomplex.in/service/getPastReceivedBy.php'),
+      headers: requestHeaders,
+      body: map,
+    );
 
     if (expenseTypeResponse.statusCode == 200) {
       setState(() {
@@ -98,6 +115,7 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
               },
               items:
                   _expenseTypes.map<DropdownMenuItem<String>>((String value) {
+                print(value);
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(value),
