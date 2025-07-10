@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class LandingPage extends StatelessWidget {
+  const LandingPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,10 +17,10 @@ class LandingPage extends StatelessWidget {
             );
           },
         ),
-        title: Text('Rohini Complex'),
+        title: const Text('Rohini Complex'),
         actions: [
           IconButton(
-            icon: Icon(Icons.notification_important),
+            icon: const Icon(Icons.notification_important),
             onPressed: () {
               Navigator.pushNamed(context, '/notification');
             },
@@ -28,16 +30,16 @@ class LandingPage extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(height: 20.0),
+          const SizedBox(height: 20.0),
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 20.0),
-            padding: EdgeInsets.all(20.0),
+            margin: const EdgeInsets.symmetric(horizontal: 20.0),
+            padding: const EdgeInsets.all(20.0),
             height: 200.0,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20.0),
               color: Theme.of(context).primaryColor,
             ),
-            child: Column(
+            child: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -59,7 +61,7 @@ class LandingPage extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(height: 20.0),
+          const SizedBox(height: 20.0),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -160,7 +162,7 @@ class LandingPage extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 20.0),
+          const SizedBox(height: 20.0),
           Divider(
             color: Theme.of(context).primaryColor,
             thickness: 1.0,
@@ -216,7 +218,7 @@ class NavigationButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const NavigationButton({
+  const NavigationButton({super.key, 
     required this.icon,
     required this.label,
     required this.onTap,
@@ -234,7 +236,7 @@ class NavigationButton extends StatelessWidget {
           ),
           color: Colors.white,
         ),
-        padding: EdgeInsets.all(10.0),
+        padding: const EdgeInsets.all(10.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -243,10 +245,10 @@ class NavigationButton extends StatelessWidget {
               size: 36.0,
               color: Theme.of(context).primaryColor,
             ),
-            SizedBox(height: 4.0),
+            const SizedBox(height: 4.0),
             Text(
               label,
-              style: TextStyle(fontSize: 12.0),
+              style: const TextStyle(fontSize: 12.0),
               textAlign: TextAlign.center,
             ),
           ],
@@ -261,7 +263,7 @@ class BottomButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const BottomButton({
+  const BottomButton({super.key, 
     required this.icon,
     required this.label,
     required this.onTap,
@@ -277,10 +279,10 @@ class BottomButton extends StatelessWidget {
           color: Theme.of(context).primaryColor,
           onPressed: onTap,
         ),
-        SizedBox(height: 4.0),
+        const SizedBox(height: 4.0),
         Text(
           label,
-          style: TextStyle(fontSize: 12.0),
+          style: const TextStyle(fontSize: 12.0),
           textAlign: TextAlign.center,
         ),
       ],
@@ -290,15 +292,15 @@ class BottomButton extends StatelessWidget {
 
 Widget _buildBankInfoRow(String title, String value) {
   return Padding(
-    padding: EdgeInsets.symmetric(vertical: 4.0),
+    padding: const EdgeInsets.symmetric(vertical: 4.0),
     child: RichText(
       text: TextSpan(
         text: '$title: ',
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: const TextStyle(fontWeight: FontWeight.bold),
         children: [
           TextSpan(
             text: value,
-            style: TextStyle(fontWeight: FontWeight.normal),
+            style: const TextStyle(fontWeight: FontWeight.normal),
           ),
         ],
       ),

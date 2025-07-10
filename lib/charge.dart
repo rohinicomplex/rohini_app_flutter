@@ -22,6 +22,8 @@ class User {
 }
 
 class ChargeScreen extends StatefulWidget {
+  const ChargeScreen({super.key});
+
   @override
   _ChargeScreenState createState() => _ChargeScreenState();
 }
@@ -34,7 +36,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
   String _searchText = '';
   String _buttonTxt = 'Select User';
   bool _otherChargeList = false;
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   List<ChargeItem> _chargeItems = [];
   List<ChargeItem> _allChargeItems = [];
 
@@ -50,32 +52,32 @@ class _ChargeScreenState extends State<ChargeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pending Charges'),
+        title: const Text('Pending Charges'),
       ),
       endDrawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              child: Text(
-                'Filter',
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
+              ),
+              child: const Text(
+                'Filter',
+                style: TextStyle(color: Colors.white, fontSize: 20),
               ),
             ),
             ListTile(
               title: Row(
                 children: [
-                  Text('From Date:'),
-                  SizedBox(width: 10),
+                  const Text('From Date:'),
+                  const SizedBox(width: 10),
                   _fromDate != null
                       ? TextButton.icon(
                           onPressed: () {
                             _pickFromDate(context);
                           },
-                          icon: Icon(Icons.calendar_today),
+                          icon: const Icon(Icons.calendar_today),
                           label: Text(
                             '${_fromDate!.day}/${_fromDate!.month}/${_fromDate!.year}',
                           ),
@@ -84,8 +86,8 @@ class _ChargeScreenState extends State<ChargeScreen> {
                           onPressed: () {
                             _pickFromDate(context);
                           },
-                          icon: Icon(Icons.calendar_today),
-                          label: Text('Select'),
+                          icon: const Icon(Icons.calendar_today),
+                          label: const Text('Select'),
                         ),
                 ],
               ),
@@ -93,14 +95,14 @@ class _ChargeScreenState extends State<ChargeScreen> {
             ListTile(
               title: Row(
                 children: [
-                  Text('To Date:'),
-                  SizedBox(width: 10),
+                  const Text('To Date:'),
+                  const SizedBox(width: 10),
                   _toDate != null
                       ? TextButton.icon(
                           onPressed: () {
                             _pickToDate(context);
                           },
-                          icon: Icon(Icons.calendar_today),
+                          icon: const Icon(Icons.calendar_today),
                           label: Text(
                             '${_toDate!.day}/${_toDate!.month}/${_toDate!.year}',
                           ),
@@ -109,15 +111,15 @@ class _ChargeScreenState extends State<ChargeScreen> {
                           onPressed: () {
                             _pickToDate(context);
                           },
-                          icon: Icon(Icons.calendar_today),
-                          label: Text('Select'),
+                          icon: const Icon(Icons.calendar_today),
+                          label: const Text('Select'),
                         ),
                 ],
               ),
             ),
             ListTile(
               title: TextField(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Search',
                 ),
                 controller: _searchController,
@@ -137,7 +139,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
                     _filterChargeItems();
                     Navigator.of(context).pop();
                   },
-                  child: Text('Filter'),
+                  child: const Text('Filter'),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -149,7 +151,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
                       _filterChargeItems();
                     });
                   },
-                  child: Text('Reset'),
+                  child: const Text('Reset'),
                 ),
               ],
             ),
@@ -157,7 +159,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -169,10 +171,10 @@ class _ChargeScreenState extends State<ChargeScreen> {
                     },
                     child: Text(
                       _buttonTxt,
-                      style: TextStyle(fontSize: 18.0), // Increased font size
+                      style: const TextStyle(fontSize: 18.0), // Increased font size
                     ),
                   ),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             _selectedUserId.isNotEmpty
                 ? Expanded(
                     child: ListView.builder(
@@ -184,7 +186,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
                       },
                     ),
                   )
-                : SizedBox.shrink(),
+                : const SizedBox.shrink(),
           ],
         ),
       ),
@@ -271,7 +273,7 @@ class _ChargeScreenState extends State<ChargeScreen> {
     String token = await LocalAppStorage().getToken();
     Map<String, String> requestHeaders = {'token': token, 'usertk': user};
 
-    var map = new Map<String, String>();
+    var map = <String, String>{};
     map['userName'] = user;
 
     if (selUser != "0") {
@@ -307,24 +309,24 @@ class _ChargeScreenState extends State<ChargeScreen> {
   void _filterChargeItems() {
     // Filter charge items based on selected dates and search text
     // Update _chargeItems accordingly
-    List<ChargeItem> _filteredChargeItems = [];
+    List<ChargeItem> filteredChargeItems = [];
 
-    if (!_searchText.isEmpty) {
+    if (_searchText.isNotEmpty) {
       for (var i = 0; i < _allChargeItems.length; i++) {
         if (_allChargeItems[i].chargeDetails.contains(_searchController.text)) {
-          _filteredChargeItems.add(_allChargeItems[i]);
+          filteredChargeItems.add(_allChargeItems[i]);
         }
       }
     } else {
-      _filteredChargeItems.addAll(_allChargeItems);
+      filteredChargeItems.addAll(_allChargeItems);
     }
     var dateFormat = DateFormat('yyyy-MM-dd');
     if (_fromDate != null) {
       var k = DateUtils.dateOnly(_fromDate as DateTime);
 
-      for (var i = _filteredChargeItems.length - 1; i >= 0; i--) {
-        if (dateFormat.parse(_filteredChargeItems[i].invoiceDate).isBefore(k)) {
-          _filteredChargeItems.remove(_filteredChargeItems[i]);
+      for (var i = filteredChargeItems.length - 1; i >= 0; i--) {
+        if (dateFormat.parse(filteredChargeItems[i].invoiceDate).isBefore(k)) {
+          filteredChargeItems.remove(filteredChargeItems[i]);
         }
       }
     }
@@ -332,14 +334,14 @@ class _ChargeScreenState extends State<ChargeScreen> {
     if (_toDate != null) {
       var k = DateUtils.dateOnly(_toDate as DateTime);
 
-      for (var i = _filteredChargeItems.length - 1; i >= 0; i--) {
-        if (dateFormat.parse(_filteredChargeItems[i].invoiceDate).isAfter(k)) {
-          _filteredChargeItems.remove(_filteredChargeItems[i]);
+      for (var i = filteredChargeItems.length - 1; i >= 0; i--) {
+        if (dateFormat.parse(filteredChargeItems[i].invoiceDate).isAfter(k)) {
+          filteredChargeItems.remove(filteredChargeItems[i]);
         }
       }
     }
     setState(() {
-      _chargeItems = _filteredChargeItems;
+      _chargeItems = filteredChargeItems;
     });
   }
 }
@@ -379,12 +381,12 @@ class ChargeItem {
 class ChargeItemWidget extends StatelessWidget {
   final ChargeItem chargeItem;
 
-  ChargeItemWidget({required this.chargeItem});
+  const ChargeItemWidget({super.key, required this.chargeItem});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 8.0),
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: ListTile(
         title: Text('Invoice Date: ${chargeItem.invoiceDate}'),
         subtitle: Column(
@@ -403,7 +405,7 @@ class ChargeItemWidget extends StatelessWidget {
             // Logic to handle payment
             _handlePayment(context);
           },
-          child: Text('Pay now'),
+          child: const Text('Pay now'),
         ),
       ),
     );

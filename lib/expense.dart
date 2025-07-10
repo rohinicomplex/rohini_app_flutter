@@ -7,6 +7,8 @@ import 'dart:convert';
 import 'storage.dart';
 
 class ExpenseAddScreen extends StatefulWidget {
+  const ExpenseAddScreen({super.key});
+
   @override
   _ExpenseAddScreenState createState() => _ExpenseAddScreenState();
 }
@@ -20,8 +22,8 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
   String _details = '';
   String _receivedBy = '';
   String _selectedOption = '';
-  GlobalKey<SfSignaturePadState> _signaturePadKey = GlobalKey();
-  TextEditingController _amountController = TextEditingController();
+  final GlobalKey<SfSignaturePadState> _signaturePadKey = GlobalKey();
+  final TextEditingController _amountController = TextEditingController();
   List<String> _expenseTypes = [];
   List<String> _payeeSuggestions = [];
   List<String> _receivedBySuggestions = [];
@@ -37,7 +39,7 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
     String token = await LocalAppStorage().getToken();
     Map<String, String> requestHeaders = {'token': token, 'usertk': user};
 
-    var map = new Map<String, String>();
+    var map = <String, String>{};
     map['userName'] = user;
 
     final expenseTypeResponse = await http.post(
@@ -86,28 +88,28 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Expense'),
+        title: const Text('Add Expense'),
         actions: [
           IconButton(
             onPressed: _importBankTransactions,
-            icon: Icon(Icons.import_export),
+            icon: const Icon(Icons.import_export),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Expense Type', style: TextStyle(fontSize: 16)),
-            SizedBox(height: 8.0),
+            const Text('Expense Type', style: TextStyle(fontSize: 16)),
+            const SizedBox(height: 8.0),
             DropdownButtonFormField<String>(
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(),
               ),
               value:
                   _selectedExpenseType.isNotEmpty ? _selectedExpenseType : null,
-              hint: Text('Select Expense Type'),
+              hint: const Text('Select Expense Type'),
               onChanged: (String? newValue) {
                 setState(() {
                   _selectedExpenseType = newValue!;
@@ -122,13 +124,13 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
                 );
               }).toList(),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             InkWell(
               onTap: () {
                 _selectDate(context);
               },
               child: InputDecorator(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Date',
                   border: OutlineInputBorder(),
                 ),
@@ -137,14 +139,14 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
                   children: [
                     Text(
                         '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}'),
-                    Icon(Icons.calendar_today),
+                    const Icon(Icons.calendar_today),
                   ],
                 ),
               ),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             TextFormField(
-              decoration: InputDecoration(labelText: 'Amount'),
+              decoration: const InputDecoration(labelText: 'Amount'),
               controller: _amountController,
               keyboardType: TextInputType.number,
               /*onChanged: (value) {
@@ -159,14 +161,14 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
                 }
               },*/
             ),
-            SizedBox(height: 16.0),
-            Text('Select Mode', style: TextStyle(fontSize: 16)),
-            SizedBox(height: 8.0),
+            const SizedBox(height: 16.0),
+            const Text('Select Mode', style: TextStyle(fontSize: 16)),
+            const SizedBox(height: 8.0),
             Row(
               children: [
                 Expanded(
                   child: RadioListTile<String>(
-                    title: Text('Cash'),
+                    title: const Text('Cash'),
                     value: 'Cash',
                     groupValue: _selectedMode,
                     onChanged: (String? value) {
@@ -178,7 +180,7 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
                 ),
                 Expanded(
                   child: RadioListTile<String>(
-                    title: Text('Bank'),
+                    title: const Text('Bank'),
                     value: 'Bank',
                     groupValue: _selectedMode,
                     onChanged: (String? value) {
@@ -190,7 +192,7 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             _buildAutocompleteField(
               label: 'Payment To',
               suggestions: _payeeSuggestions,
@@ -200,18 +202,18 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
                 });
               },
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             TextFormField(
-              decoration: InputDecoration(labelText: 'Reference'),
+              decoration: const InputDecoration(labelText: 'Reference'),
               onChanged: (value) {
                 setState(() {
                   _reference = value;
                 });
               },
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             TextFormField(
-              decoration: InputDecoration(labelText: 'Details'),
+              decoration: const InputDecoration(labelText: 'Details'),
               maxLines: null,
               keyboardType: TextInputType.multiline,
               onChanged: (value) {
@@ -220,7 +222,7 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
                 });
               },
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             _buildAutocompleteField(
               label: 'Received By',
               suggestions: _receivedBySuggestions,
@@ -230,14 +232,14 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
                 });
               },
             ),
-            SizedBox(height: 16.0),
-            Text('Select Option', style: TextStyle(fontSize: 16)),
-            SizedBox(height: 8.0),
+            const SizedBox(height: 16.0),
+            const Text('Select Option', style: TextStyle(fontSize: 16)),
+            const SizedBox(height: 8.0),
             Row(
               children: [
                 Expanded(
                   child: RadioListTile<String>(
-                    title: Text('Voucher'),
+                    title: const Text('Voucher'),
                     value: 'Voucher',
                     groupValue: _selectedOption,
                     onChanged: (String? value) {
@@ -249,7 +251,7 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
                 ),
                 Expanded(
                   child: RadioListTile<String>(
-                    title: Text('Receipt'),
+                    title: const Text('Receipt'),
                     value: 'Receipt',
                     groupValue: _selectedOption,
                     onChanged: (String? value) {
@@ -262,26 +264,26 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
               ],
             ),
             if (_selectedOption == 'Receipt') ...[
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton.icon(
                     onPressed: _chooseFileFromSystem,
-                    icon: Icon(Icons.attach_file),
-                    label: Text('Select File'),
+                    icon: const Icon(Icons.attach_file),
+                    label: const Text('Select File'),
                   ),
                   ElevatedButton.icon(
                     onPressed: _takePicture,
-                    icon: Icon(Icons.camera_alt),
-                    label: Text('Take Picture'),
+                    icon: const Icon(Icons.camera_alt),
+                    label: const Text('Take Picture'),
                   ),
                 ],
               ),
             ],
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             if (_selectedOption == 'Voucher') ...[
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               Stack(
                 children: [
                   Container(
@@ -302,17 +304,17 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
                     right: 8.0,
                     top: 8.0,
                     child: IconButton(
-                      icon: Icon(Icons.delete, color: Colors.red),
+                      icon: const Icon(Icons.delete, color: Colors.red),
                       onPressed: _clearSignature,
                     ),
                   ),
                 ],
               ),
             ],
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: _submitForm,
-              child: Text('Submit'),
+              child: const Text('Submit'),
             ),
           ],
         ),
@@ -327,10 +329,11 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
     );
-    if (picked != null && picked != _selectedDate)
+    if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
       });
+    }
   }
 
   Widget _buildAutocompleteField({
@@ -396,18 +399,18 @@ class _ExpenseAddScreenState extends State<ExpenseAddScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Select Bank Transaction'),
+          title: const Text('Select Bank Transaction'),
           content: SingleChildScrollView(
             child: Column(
               children: [
                 ListTile(
-                  title: Text('Transaction 1'),
+                  title: const Text('Transaction 1'),
                   onTap: () {
                     Navigator.of(context).pop('Transaction 1');
                   },
                 ),
                 ListTile(
-                  title: Text('Transaction 2'),
+                  title: const Text('Transaction 2'),
                   onTap: () {
                     Navigator.of(context).pop('Transaction 2');
                   },

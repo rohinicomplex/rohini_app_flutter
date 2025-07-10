@@ -23,10 +23,12 @@ import 'bankinfo.dart';
 //import 'homepage.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     LocalAppStorage().storeTempData();
@@ -38,32 +40,32 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/landing',
       routes: {
-        '/otp': (context) => OTPScreen(),
-        '/expense': (context) => ExpenseAddScreen(),
-        '/landing': (context) => LandingPage(),
-        '/profile': (context) => ProfilePage(),
-        '/invoice': (context) => InvoiceScreen(),
-        '/charges': (context) => ChargeScreen(),
-        '/payonline': (context) => PayOnlineScreen(),
-        '/notice': (context) => NoticeScreen(),
-        '/chat': (context) => GroupChatScreen(),
-        '/event': (context) => CommunityHallBookingScreen(),
-        '/ledger': (context) => LedgerScreen(),
-        '/contacts': (context) => ContactsScreen(),
-        '/approvals': (context) => ActivityApproval(),
-        '/gatepass': (context) => GatePassScreen(),
-        '/settings': (context) => SettingsPage(),
-        '/customersel': (context) => CustomerSelectionScreen(),
-        '/chargesel': (context) => ChargesSelectionScreen(),
-        '/bankinfo': (context) => BankInfoScreen(),
-        '/payment_details': (context) => PaymentDetailsScreen(
+        '/otp': (context) => const OTPScreen(),
+        '/expense': (context) => const ExpenseAddScreen(),
+        '/landing': (context) => const LandingPage(),
+        '/profile': (context) => const ProfilePage(),
+        '/invoice': (context) => const InvoiceScreen(),
+        '/charges': (context) => const ChargeScreen(),
+        '/payonline': (context) => const PayOnlineScreen(),
+        '/notice': (context) => const NoticeScreen(),
+        '/chat': (context) => const GroupChatScreen(),
+        '/event': (context) => const CommunityHallBookingScreen(),
+        '/ledger': (context) => const LedgerScreen(),
+        '/contacts': (context) => const ContactsScreen(),
+        '/approvals': (context) => const ActivityApproval(),
+        '/gatepass': (context) => const GatePassScreen(),
+        '/settings': (context) => const SettingsPage(),
+        '/customersel': (context) => const CustomerSelectionScreen(),
+        '/chargesel': (context) => const ChargesSelectionScreen(),
+        '/bankinfo': (context) => const BankInfoScreen(),
+        '/payment_details': (context) => const PaymentDetailsScreen(
               selectedCharges: [],
             ),
-        '/payment_distribution': (context) => PaymentDistributionScreen(),
-        '/summary': (context) => SummaryScreen(),
-        '/notification': (context) => NotificationsPage(),
-        '/service': (context) => ServiceScreen(),
-        '/intercom': (context) => IntercomScreen(),
+        '/payment_distribution': (context) => const PaymentDistributionScreen(),
+        '/summary': (context) => const SummaryScreen(),
+        '/notification': (context) => const NotificationsPage(),
+        '/service': (context) => const ServiceScreen(),
+        '/intercom': (context) => const IntercomScreen(),
       },
     );
   }

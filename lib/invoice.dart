@@ -24,6 +24,8 @@ class User {
 }
 
 class InvoiceScreen extends StatefulWidget {
+  const InvoiceScreen({super.key});
+
   @override
   _InvoiceScreenState createState() => _InvoiceScreenState();
 }
@@ -36,7 +38,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   String _searchText = '';
   String _buttonTxt = 'Select User';
 
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   List<InvoiceItem> _invoiceItems = [];
   List<InvoiceItem> _allInvoiceItems = [];
 
@@ -52,32 +54,32 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Invoices'),
+        title: const Text('Invoices'),
       ),
       endDrawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              child: Text(
-                'Filter',
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
+              ),
+              child: const Text(
+                'Filter',
+                style: TextStyle(color: Colors.white, fontSize: 20),
               ),
             ),
             ListTile(
               title: Row(
                 children: [
-                  Text('From Date:'),
-                  SizedBox(width: 10),
+                  const Text('From Date:'),
+                  const SizedBox(width: 10),
                   _fromDate != null
                       ? TextButton.icon(
                           onPressed: () {
                             _pickFromDate(context);
                           },
-                          icon: Icon(Icons.calendar_today),
+                          icon: const Icon(Icons.calendar_today),
                           label: Text(
                             '${_fromDate!.day}/${_fromDate!.month}/${_fromDate!.year}',
                           ),
@@ -86,8 +88,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                           onPressed: () {
                             _pickFromDate(context);
                           },
-                          icon: Icon(Icons.calendar_today),
-                          label: Text('Select'),
+                          icon: const Icon(Icons.calendar_today),
+                          label: const Text('Select'),
                         ),
                 ],
               ),
@@ -95,14 +97,14 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
             ListTile(
               title: Row(
                 children: [
-                  Text('To Date:'),
-                  SizedBox(width: 10),
+                  const Text('To Date:'),
+                  const SizedBox(width: 10),
                   _toDate != null
                       ? TextButton.icon(
                           onPressed: () {
                             _pickToDate(context);
                           },
-                          icon: Icon(Icons.calendar_today),
+                          icon: const Icon(Icons.calendar_today),
                           label: Text(
                             '${_toDate!.day}/${_toDate!.month}/${_toDate!.year}',
                           ),
@@ -111,15 +113,15 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                           onPressed: () {
                             _pickToDate(context);
                           },
-                          icon: Icon(Icons.calendar_today),
-                          label: Text('Select'),
+                          icon: const Icon(Icons.calendar_today),
+                          label: const Text('Select'),
                         ),
                 ],
               ),
             ),
             ListTile(
               title: TextField(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Search',
                 ),
                 controller: _searchController,
@@ -139,7 +141,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                     _filterInvoiceItems();
                     Navigator.of(context).pop();
                   },
-                  child: Text('Filter'),
+                  child: const Text('Filter'),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -151,7 +153,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       _filterInvoiceItems();
                     });
                   },
-                  child: Text('Reset'),
+                  child: const Text('Reset'),
                 ),
               ],
             ),
@@ -159,7 +161,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -169,10 +171,10 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
               },
               child: Text(
                 _buttonTxt,
-                style: TextStyle(fontSize: 18.0), // Increased font size
+                style: const TextStyle(fontSize: 18.0), // Increased font size
               ),
             ),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             _selectedUserId.isNotEmpty
                 ? Expanded(
                     child: ListView.builder(
@@ -184,7 +186,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       },
                     ),
                   )
-                : SizedBox.shrink(),
+                : const SizedBox.shrink(),
           ],
         ),
       ),
@@ -272,20 +274,20 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     String token = await LocalAppStorage().getToken();
     Map<String, String> requestHeaders = {'token': token, 'usertk': user};
 
-    var map = new Map<String, String>();
+    var map = <String, String>{};
     map['userName'] = user;
 
-    var _url = 'https://rohinicomplex.in/service/getBillByUserName.php';
+    var url = 'https://rohinicomplex.in/service/getBillByUserName.php';
     if (selUser != "0") {
       // print("test");
       map['userID'] = selUser;
-      _url = 'https://rohinicomplex.in/service/getBillByUserID.php';
+      url = 'https://rohinicomplex.in/service/getBillByUserID.php';
     } else {
       _selectedUserId = "0";
     }
     try {
       final response = await http.post(
-        Uri.parse(_url),
+        Uri.parse(url),
         headers: requestHeaders,
         body: map,
       );
@@ -310,24 +312,24 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   void _filterInvoiceItems() {
     // Filter charge items based on selected dates and search text
     // Update _chargeItems accordingly
-    List<InvoiceItem> _filteredChargeItems = [];
+    List<InvoiceItem> filteredChargeItems = [];
 
-    if (!_searchText.isEmpty) {
+    if (_searchText.isNotEmpty) {
       for (var i = 0; i < _allInvoiceItems.length; i++) {
         if (_allInvoiceItems[i].refNo.contains(_searchController.text)) {
-          _filteredChargeItems.add(_allInvoiceItems[i]);
+          filteredChargeItems.add(_allInvoiceItems[i]);
         }
       }
     } else {
-      _filteredChargeItems.addAll(_allInvoiceItems);
+      filteredChargeItems.addAll(_allInvoiceItems);
     }
     var dateFormat = DateFormat('yyyy-MM-dd');
     if (_fromDate != null) {
       var k = DateUtils.dateOnly(_fromDate as DateTime);
 
-      for (var i = _filteredChargeItems.length - 1; i >= 0; i--) {
-        if (dateFormat.parse(_filteredChargeItems[i].paymentDate).isBefore(k)) {
-          _filteredChargeItems.remove(_filteredChargeItems[i]);
+      for (var i = filteredChargeItems.length - 1; i >= 0; i--) {
+        if (dateFormat.parse(filteredChargeItems[i].paymentDate).isBefore(k)) {
+          filteredChargeItems.remove(filteredChargeItems[i]);
         }
       }
     }
@@ -335,14 +337,14 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     if (_toDate != null) {
       var k = DateUtils.dateOnly(_toDate as DateTime);
 
-      for (var i = _filteredChargeItems.length - 1; i >= 0; i--) {
-        if (dateFormat.parse(_filteredChargeItems[i].paymentDate).isAfter(k)) {
-          _filteredChargeItems.remove(_filteredChargeItems[i]);
+      for (var i = filteredChargeItems.length - 1; i >= 0; i--) {
+        if (dateFormat.parse(filteredChargeItems[i].paymentDate).isAfter(k)) {
+          filteredChargeItems.remove(filteredChargeItems[i]);
         }
       }
     }
     setState(() {
-      _invoiceItems = _filteredChargeItems;
+      _invoiceItems = filteredChargeItems;
     });
   }
 }
@@ -387,12 +389,12 @@ class InvoiceItem {
 class InvoiceItemWidget extends StatelessWidget {
   final InvoiceItem chargeItem;
 
-  InvoiceItemWidget({required this.chargeItem});
+  const InvoiceItemWidget({super.key, required this.chargeItem});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 8.0),
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -421,7 +423,7 @@ class InvoiceItemWidget extends StatelessWidget {
                       _downloadReceipt(context, chargeItem.ebillNo,
                           chargeItem.payid, chargeItem.userid);
                     },
-                    child: Text('Download Receipt'),
+                    child: const Text('Download Receipt'),
                   ),
                 )
               : Container(),

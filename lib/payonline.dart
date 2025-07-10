@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'storage.dart';
+import 'package:paytm_allinonesdk/paytm_allinonesdk.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
 
 class User {
   final String id;
@@ -58,7 +61,7 @@ class PayItem {
       wf: double.parse(json['WF']),
       wfAble: double.parse(json['WFABLE']),
       maxPayAmount: double.parse(json['MAXPAYAMOUNT']),
-      wfReason: json['WFREASON'] == null ? '' : json['WFREASON'],
+      wfReason: json['WFREASON'] ?? '',
       paid: double.parse(json['PAID']),
       userID: int.parse(json['USERID']),
     );
@@ -66,6 +69,8 @@ class PayItem {
 }
 
 class PayOnlineScreen extends StatefulWidget {
+  const PayOnlineScreen({super.key});
+
   @override
   _PayOnlineScreenState createState() => _PayOnlineScreenState();
 }
@@ -74,7 +79,7 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
   List<User> _users = []; // Initially empty user list
   User? _selectedUser;
   List<PayItem> _payItems = []; // Initially empty pay items list
-  List<PayItem> _selectedItems = [];
+  final List<PayItem> _selectedItems = [];
 
   @override
   void initState() {
@@ -122,7 +127,7 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
     String token = await LocalAppStorage().getToken();
     Map<String, String> requestHeaders = {'token': token, 'usertk': user};
 
-    var map = new Map<String, String>();
+    var map = <String, String>{};
     map['userName'] = user;
 
     if (selUser != null) {
@@ -182,12 +187,12 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Select Payment Gateway'),
+          title: const Text('Select Payment Gateway'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               //Text('Please select a payment gateway:'),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -216,13 +221,13 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
                   ),*/
                 ],
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
                   Navigator.of(context)
                       .pop(); // Close the payment selection dialog
                 },
-                child: Text('Cancel'),
+                child: const Text('Cancel'),
               ),
             ],
           ),
@@ -243,8 +248,8 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
 
     for (var item in _selectedItems) {
       totalAmount += item.amountDue;
-      chargeitemStr += (item.id + ":" + item.amountDue.toString() + ",");
-      wfitemStr += (item.id + ":" + item.wfAble.toString() + ",");
+      chargeitemStr += ("${item.id}:${item.amountDue},");
+      wfitemStr += ("${item.id}:${item.wfAble},");
       wftot += item.wfAble;
       if (item.wfReason != '') {
         wfReasonv = item.wfReason;
@@ -254,12 +259,17 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
     String token = await LocalAppStorage().getToken();
     Map<String, String> requestHeaders = {'token': token, 'usertk': user};
 
-    var map = new Map<String, dynamic>();
+    // Get the current date
+    DateTime now1 = DateTime.now();
+    // Format the current date
+    String formattedDate = DateFormat('yyyy-MM-dd').format(now1);
+
+    var map = <String, dynamic>{};
     map['selfpay'] = 'true';
     map['userid'] = _selectedItems[0].userID.toString();
     map['vide'] = '1';
     map['amount'] = totalAmount.toString();
-    map['date'] = totalAmount.toString();
+    map['date'] = formattedDate;
     map['receivedby'] = user;
     map['chargeDTL'] = chargeitemStr;
     map['billno'] = '';
@@ -277,12 +287,40 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
       );
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
-        if (data['result'] > 0) {}
-
-        setState(() {
-          _payItems = data.map((json) => PayItem.fromJson(json)).toList();
-          print(_payItems.length);
-        });
+        if (data['result'] > 0) {
+          var orderId = data['result'];
+          // var amount =
+          var callbackurl =
+              "https://securegw.paytm.in/theia/paytmCallback?ORDER_ID=" +
+                  orderId;
+          var response = AllInOneSdk.startTransaction(
+              'DxINAh15726115225312',
+              orderId,
+              totalAmount.toString(),
+              data['txnToken'],
+              callbackurl,
+              false,
+              false);
+          response.then((value) {
+            print(value);
+            setState(() {
+              // result = value.toString();
+              _selectedItems.clear(); // Clear selected items when user changes
+              _fetchPayItems(
+                  _selectedUser); // Fetch pay items for the selected user
+            });
+          }).catchError((onError) {
+            if (onError is PlatformException) {
+              setState(() {
+                // result = onError.message + " \n  " + onError.details.toString();
+              });
+            } else {
+              setState(() {
+                //result = onError.toString();
+              });
+            }
+          });
+        }
       } else {
         throw Exception('Failed to load charge items');
       }
@@ -299,12 +337,12 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Payment Status'),
+          title: const Text('Payment Status'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text('Payment has been successfully processed via $gateway.'),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   Navigator.of(context)
@@ -312,7 +350,7 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
                   // Show success message with download button for invoice
                   _showSuccessPopup();
                 },
-                child: Text('OK'),
+                child: const Text('OK'),
               ),
             ],
           ),
@@ -327,18 +365,18 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Payment Successful'),
+          title: const Text('Payment Successful'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Payment has been successfully processed.'),
-              SizedBox(height: 20),
+              const Text('Payment has been successfully processed.'),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   // Download invoice logic
                   // This is a placeholder, you would implement the logic to download the invoice file
                 },
-                child: Text('Download Invoice'),
+                child: const Text('Download Invoice'),
               ),
             ],
           ),
@@ -351,20 +389,20 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Pay Online'),
+        title: const Text('Pay Online'),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
               _selectUser(context);
             },
             child: Text(_selectedUser?.name ?? 'Select User',
-                style: TextStyle(fontSize: 18.0)),
+                style: const TextStyle(fontSize: 18.0)),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Expanded(
             child: ListView.builder(
               itemCount: _payItems.length,
@@ -372,7 +410,7 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
                 final item = _payItems[index];
                 final isSelected = _selectedItems.contains(item);
                 return Card(
-                    margin: EdgeInsets.symmetric(vertical: 8.0),
+                    margin: const EdgeInsets.symmetric(vertical: 8.0),
                     child: ListTile(
                       leading: Checkbox(
                         value: isSelected,
@@ -395,7 +433,7 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
                           Text('Status:: ${item.paymentStatus}'),
                           Text(
                             'Total Payable Amount : ${item.amountDue}',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -403,7 +441,7 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
                         onPressed: () {
                           _showDetailsDialog(context, item);
                         },
-                        child: Text('Details'),
+                        child: const Text('Details'),
                       ),
                     ));
               },
@@ -413,14 +451,14 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
             padding: const EdgeInsets.all(8.0),
             child: Text(
               'Total Amount: ${_calculateTotalAmount()}',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
           ElevatedButton(
             onPressed: () {
               _makePayment();
             },
-            child: Text('Pay Now'),
+            child: const Text('Pay Now'),
           ),
         ],
       ),
@@ -441,7 +479,7 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Payment Details'),
+          title: const Text('Payment Details'),
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -456,7 +494,7 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
               Text('Total Paid : ${item.paid}'),
               Text(
                 'Total Payable Amount : ${item.amountDue}',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -465,7 +503,7 @@ class _PayOnlineScreenState extends State<PayOnlineScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Close'),
+              child: const Text('Close'),
             ),
           ],
         );

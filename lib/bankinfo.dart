@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Import for accessing clipboard functionality
 
 class BankInfoScreen extends StatelessWidget {
+  const BankInfoScreen({super.key});
+
   // Method to copy bank details to clipboard
   void _copyToClipboard(String data, BuildContext context) {
     Clipboard.setData(ClipboardData(text: data));
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Bank details copied to clipboard'),
       ),
     );
@@ -16,10 +18,10 @@ class BankInfoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Bank Information'),
+        title: const Text('Bank Information'),
         actions: [
           IconButton(
-            icon: Icon(Icons.copy),
+            icon: const Icon(Icons.copy),
             onPressed: () {
               // Concatenate bank details
               String bankDetails =
@@ -46,66 +48,66 @@ Branch: RAJARHAT TOWNSHIP''';
                 width: 120,
               ),
             ),
-            SizedBox(height: 16.0),
-            Text(
+            const SizedBox(height: 16.0),
+            const Text(
               'Account Name:',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18.0,
               ),
             ),
-            SizedBox(height: 8.0),
-            Text('ROHINI COMPLEX FLAT OWNERS ASSOCIATION'),
-            SizedBox(height: 16.0),
-            Text(
+            const SizedBox(height: 8.0),
+            const Text('ROHINI COMPLEX FLAT OWNERS ASSOCIATION'),
+            const SizedBox(height: 16.0),
+            const Text(
               'Account Number:',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18.0,
               ),
             ),
-            SizedBox(height: 8.0),
-            Text('00000035088967363'),
-            SizedBox(height: 16.0),
-            Text(
+            const SizedBox(height: 8.0),
+            const Text('00000035088967363'),
+            const SizedBox(height: 16.0),
+            const Text(
               'Bank Name:',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18.0,
               ),
             ),
-            SizedBox(height: 8.0),
-            Text('State Bank of India'),
-            SizedBox(height: 16.0),
-            Text(
+            const SizedBox(height: 8.0),
+            const Text('State Bank of India'),
+            const SizedBox(height: 16.0),
+            const Text(
               'Account Type:',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18.0,
               ),
             ),
-            SizedBox(height: 8.0),
-            Text('Savings'),
-            SizedBox(height: 16.0),
-            Text(
+            const SizedBox(height: 8.0),
+            const Text('Savings'),
+            const SizedBox(height: 16.0),
+            const Text(
               'IFS Code:',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18.0,
               ),
             ),
-            SizedBox(height: 8.0),
-            Text('SBIN0012384'),
-            SizedBox(height: 16.0),
-            Text(
+            const SizedBox(height: 8.0),
+            const Text('SBIN0012384'),
+            const SizedBox(height: 16.0),
+            const Text(
               'Branch:',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18.0,
               ),
             ),
-            SizedBox(height: 8.0),
-            Text('RAJARHAT TOWNSHIP'),
+            const SizedBox(height: 8.0),
+            const Text('RAJARHAT TOWNSHIP'),
           ],
         ),
       ),

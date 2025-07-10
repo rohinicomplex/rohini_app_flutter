@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
 class GatePassScreen extends StatelessWidget {
+  const GatePassScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Gate Pass Screen'),
+        title: const Text('Gate Pass Screen'),
       ),
-      body: Center(
+      body: const Center(
         child: Text(
           'Coming soon',
           style: TextStyle(

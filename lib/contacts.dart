@@ -7,6 +7,8 @@ import 'dart:convert';
 import 'storage.dart';
 
 class ContactsScreen extends StatefulWidget {
+  const ContactsScreen({super.key});
+
   @override
   _ContactsScreenState createState() => _ContactsScreenState();
 }
@@ -14,7 +16,7 @@ class ContactsScreen extends StatefulWidget {
 class _ContactsScreenState extends State<ContactsScreen> {
   List<AContact> _contacts = [];
   List<AContact> _filteredContacts = [];
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -63,12 +65,12 @@ class _ContactsScreenState extends State<ContactsScreen> {
     if (response.statusCode == 200) {
       // Handle success
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Contact saved successfully')),
+        const SnackBar(content: Text('Contact saved successfully')),
       );
     } else {
       // Handle error
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save contact')),
+        const SnackBar(content: Text('Failed to save contact')),
       );
     }
   }
@@ -85,17 +87,17 @@ class _ContactsScreenState extends State<ContactsScreen> {
       var s = json.decode(response.body);
       if (s["status"] == 1) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Contact deleted successfully')),
+          const SnackBar(content: Text('Contact deleted successfully')),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to delete contact')),
+          const SnackBar(content: Text('Failed to delete contact')),
         );
       }
     } else {
       // Handle error
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete contact')),
+        const SnackBar(content: Text('Failed to delete contact')),
       );
     }
   }
@@ -111,7 +113,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
   void _navigateToAddContact(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => AddContactScreen()),
+      MaterialPageRoute(builder: (context) => const AddContactScreen()),
     ).then((value) {
       if (value != null && value is AContact) {
         setState(() {
@@ -144,14 +146,14 @@ class _ContactsScreenState extends State<ContactsScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirm Delete'),
-          content: Text('Are you sure you want to delete this contact?'),
+          title: const Text('Confirm Delete'),
+          content: const Text('Are you sure you want to delete this contact?'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -162,7 +164,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
                 });
                 Navigator.of(context).pop();
               },
-              child: Text('Delete'),
+              child: const Text('Delete'),
             ),
           ],
         );
@@ -180,11 +182,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
 
       await FlutterContacts.insertContact(newContact);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Contact saved to phone')),
+        const SnackBar(content: Text('Contact saved to phone')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Permission to access contacts is denied')),
+        const SnackBar(content: Text('Permission to access contacts is denied')),
       );
     }
   }
@@ -210,7 +212,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Contacts'),
+        title: const Text('Contacts'),
       ),
       body: Column(
         children: [
@@ -220,7 +222,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
               controller: _searchController,
               decoration: InputDecoration(
                 labelText: 'Search',
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
@@ -244,14 +246,14 @@ class _ContactsScreenState extends State<ContactsScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: Icon(Icons.phone),
+                        icon: const Icon(Icons.phone),
                         onPressed: () {
                           _launchURL(
                               'tel:${_filteredContacts[index].phoneNumber}');
                         },
                       ),
                       IconButton(
-                        icon: Icon(Icons.message),
+                        icon: const Icon(Icons.message),
                         onPressed: () {
                           _launchURL(
                               'sms:${_filteredContacts[index].phoneNumber}');
@@ -290,46 +292,48 @@ class _ContactsScreenState extends State<ContactsScreen> {
         onPressed: () {
           _navigateToAddContact(context);
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
 }
 
 class AddContactScreen extends StatefulWidget {
+  const AddContactScreen({super.key});
+
   @override
   _AddContactScreenState createState() => _AddContactScreenState();
 }
 
 class _AddContactScreenState extends State<AddContactScreen> {
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Contact'),
+        title: const Text('Add Contact'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextField(
               controller: _nameController,
-              decoration: InputDecoration(labelText: 'Name'),
+              decoration: const InputDecoration(labelText: 'Name'),
             ),
             TextField(
               controller: _phoneNumberController,
-              decoration: InputDecoration(labelText: 'Phone Number'),
+              decoration: const InputDecoration(labelText: 'Phone Number'),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 _saveContact(context);
               },
-              child: Text('Save'),
+              child: const Text('Save'),
             ),
           ],
         ),
@@ -353,15 +357,15 @@ class _AddContactScreenState extends State<AddContactScreen> {
 class EditContactScreen extends StatefulWidget {
   final AContact contact;
 
-  EditContactScreen(this.contact);
+  const EditContactScreen(this.contact, {super.key});
 
   @override
   _EditContactScreenState createState() => _EditContactScreenState();
 }
 
 class _EditContactScreenState extends State<EditContactScreen> {
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
 
   @override
   void initState() {
@@ -374,27 +378,27 @@ class _EditContactScreenState extends State<EditContactScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Contact'),
+        title: const Text('Edit Contact'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextField(
               controller: _nameController,
-              decoration: InputDecoration(labelText: 'Name'),
+              decoration: const InputDecoration(labelText: 'Name'),
             ),
             TextField(
               controller: _phoneNumberController,
-              decoration: InputDecoration(labelText: 'Phone Number'),
+              decoration: const InputDecoration(labelText: 'Phone Number'),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 _saveContact(context);
               },
-              child: Text('Save'),
+              child: const Text('Save'),
             ),
           ],
         ),

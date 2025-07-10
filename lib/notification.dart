@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class NotificationsPage extends StatefulWidget {
+  const NotificationsPage({super.key});
+
   @override
   _NotificationsPageState createState() => _NotificationsPageState();
 }
@@ -35,7 +37,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Notifications"),
+        title: const Text("Notifications"),
       ),
       body: Column(
         children: [
@@ -51,21 +53,21 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: Text("Notification"),
+                          title: const Text("Notification"),
                           content: Text(notifications[index]),
                           actions: [
                             ElevatedButton(
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child: Text("Close"),
+                              child: const Text("Close"),
                             ),
                             ElevatedButton(
                               onPressed: () {
                                 clearNotification(index);
                                 Navigator.of(context).pop();
                               },
-                              child: Text("Clear"),
+                              child: const Text("Clear"),
                             ),
                           ],
                         );
@@ -76,12 +78,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
               },
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           ElevatedButton(
             onPressed: clearAllNotifications,
-            child: Text("Clear All Notifications"),
+            child: const Text("Clear All Notifications"),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
         ],
       ),
     );

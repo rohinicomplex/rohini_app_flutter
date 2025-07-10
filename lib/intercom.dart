@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class IntercomScreen extends StatefulWidget {
+  const IntercomScreen({super.key});
+
   @override
   _IntercomScreenState createState() => _IntercomScreenState();
 }
@@ -28,7 +30,7 @@ class _IntercomScreenState extends State<IntercomScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Intercom Screen'),
+        title: const Text('Intercom Screen'),
       ),
       body: Column(
         children: [
@@ -40,7 +42,7 @@ class _IntercomScreenState extends State<IntercomScreen> {
                 children: [
                   TabBar(
                     labelColor: Theme.of(context).primaryColor,
-                    tabs: [
+                    tabs: const [
                       Tab(text: 'Dial Pad'),
                       Tab(text: 'Contacts'),
                       Tab(text: 'Apartment'),
@@ -55,7 +57,7 @@ class _IntercomScreenState extends State<IntercomScreen> {
                           children: [
                             Text(
                               phoneNumber,
-                              style: TextStyle(fontSize: 24),
+                              style: const TextStyle(fontSize: 24),
                             ),
                             // Dial Pad grid
                             GridView.count(
@@ -81,7 +83,7 @@ class _IntercomScreenState extends State<IntercomScreen> {
                             ),
                             // Call and Clear Buttons
                             Padding(
-                              padding: EdgeInsets.symmetric(vertical: 16),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
@@ -91,11 +93,11 @@ class _IntercomScreenState extends State<IntercomScreen> {
                                       // Call the phone number
                                       print('Calling $phoneNumber');
                                     },
-                                    child: Text('Call'),
+                                    child: const Text('Call'),
                                   ),
                                   ElevatedButton(
                                     onPressed: clearPhoneNumber,
-                                    child: Text('Clear'),
+                                    child: const Text('Clear'),
                                   ),
                                 ],
                               ),
@@ -103,7 +105,7 @@ class _IntercomScreenState extends State<IntercomScreen> {
                           ],
                         ),
                         // Contacts tab
-                        Center(
+                        const Center(
                           child: Text(
                             'Contacts',
                             style: TextStyle(fontSize: 24),
@@ -115,8 +117,8 @@ class _IntercomScreenState extends State<IntercomScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // Select Block text
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
+                            const Padding(
+                              padding: EdgeInsets.all(8.0),
                               child: Text(
                                 'Select Block',
                                 style: TextStyle(fontSize: 18),
@@ -151,8 +153,8 @@ class _IntercomScreenState extends State<IntercomScreen> {
                               ),
                             ),
                             // Select Floor text
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
+                            const Padding(
+                              padding: EdgeInsets.all(8.0),
                               child: Text(
                                 'Select Floor',
                                 style: TextStyle(fontSize: 18),
@@ -207,11 +209,11 @@ class _IntercomScreenState extends State<IntercomScreen> {
                                 children: List.generate(
                                   apartmentCount,
                                   (index) => ApartmentButton(
-                                    '${selectedBlock}${selectedFloor}${(index + 1).toString().padLeft(2, '0')}',
+                                    '$selectedBlock$selectedFloor${(index + 1).toString().padLeft(2, '0')}',
                                     () {
                                       // Call the selected apartment
                                       print(
-                                          '${selectedBlock}${selectedFloor}${(index + 1).toString().padLeft(2, '0')}');
+                                          '$selectedBlock$selectedFloor${(index + 1).toString().padLeft(2, '0')}');
                                     },
                                   ),
                                 ),
@@ -229,14 +231,14 @@ class _IntercomScreenState extends State<IntercomScreen> {
                                       // Call the main gate
                                       print('Calling Main Gate');
                                     },
-                                    child: Text('Main Gate'),
+                                    child: const Text('Main Gate'),
                                   ),
                                   ElevatedButton(
                                     onPressed: () {
                                       // Call the small gate
                                       print('Calling Small Gate');
                                     },
-                                    child: Text('Small Gate'),
+                                    child: const Text('Small Gate'),
                                   ),
                                 ],
                               ),
@@ -260,12 +262,12 @@ class DialPadButton extends StatelessWidget {
   final String text;
   final Function(String) onPressed;
 
-  DialPadButton(this.text, this.onPressed);
+  const DialPadButton(this.text, this.onPressed, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(8.0),
       child: SizedBox(
         width: 100,
         height: 100,
@@ -273,7 +275,7 @@ class DialPadButton extends StatelessWidget {
           onPressed: () => onPressed(text),
           child: Text(
             text,
-            style: TextStyle(fontSize: 24),
+            style: const TextStyle(fontSize: 24),
           ),
         ),
       ),
@@ -286,7 +288,7 @@ class BlockButton extends StatelessWidget {
   final String selectedBlock;
   final VoidCallback onPressed;
 
-  BlockButton(this.text, this.selectedBlock, this.onPressed);
+  const BlockButton(this.text, this.selectedBlock, this.onPressed, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -296,11 +298,11 @@ class BlockButton extends StatelessWidget {
         foregroundColor: selectedBlock == text
             ? Theme.of(context).primaryColor
             : Colors.grey,
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       ),
       child: Text(
         text,
-        style: TextStyle(fontSize: 20),
+        style: const TextStyle(fontSize: 20),
       ),
     );
   }
@@ -311,7 +313,7 @@ class FloorButton extends StatelessWidget {
   final int selectedFloor;
   final VoidCallback onPressed;
 
-  FloorButton(this.floor, this.selectedFloor, this.onPressed);
+  const FloorButton(this.floor, this.selectedFloor, this.onPressed, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -321,11 +323,11 @@ class FloorButton extends StatelessWidget {
         foregroundColor: selectedFloor == floor
             ? Theme.of(context).primaryColor
             : Colors.grey,
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       ),
       child: Text(
         '$floor',
-        style: TextStyle(fontSize: 18),
+        style: const TextStyle(fontSize: 18),
       ),
     );
   }
@@ -335,7 +337,7 @@ class ApartmentButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
 
-  ApartmentButton(this.text, this.onPressed);
+  const ApartmentButton(this.text, this.onPressed, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -348,14 +350,14 @@ class ApartmentButton extends StatelessWidget {
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
             foregroundColor: Theme.of(context).primaryColor,
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
           ),
           child: Text(
             text,
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
         ),
       ),

@@ -4,6 +4,8 @@ import 'package:local_auth/local_auth.dart';
 import 'storage.dart';
 
 class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
+
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
@@ -28,37 +30,37 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Settings'),
+        title: const Text('Settings'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
+            const Text(
               'Share your experience with us',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18.0,
               ),
             ),
-            SizedBox(height: 10.0),
+            const SizedBox(height: 10.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(5, (index) {
                 return IconButton(
-                  icon: Icon(Icons.star),
+                  icon: const Icon(Icons.star),
                   onPressed: () {
                     _launchURL('https://tinyurl.com/rohiniapp');
                   },
                 );
               }),
             ),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Require Touch ID'),
+                const Text('Require Touch ID'),
                 Switch(
                   value: touchIDEnabled, // Set the initial value as required
                   onChanged: (value) {
@@ -68,20 +70,20 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ],
             ),
-            Spacer(),
+            const Spacer(),
             ElevatedButton(
               onPressed: () {
                 _showContactInfo(context);
               },
-              child: Text('Contact Us'),
+              child: const Text('Contact Us'),
             ),
-            SizedBox(height: 80.0),
+            const SizedBox(height: 80.0),
             ElevatedButton(
               onPressed: () {
                 // Un-register logic
                 _showUnregisterConfirmation(context);
               },
-              child: Text('Un-register this app'),
+              child: const Text('Un-register this app'),
             ),
           ],
         ),
@@ -95,8 +97,8 @@ class _SettingsPageState extends State<SettingsPage> {
       barrierDismissible: false, // user must tap button for close dialog!
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Un-register this app?'),
-          content: SingleChildScrollView(
+          title: const Text('Un-register this app?'),
+          content: const SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
                 Text('Are you sure you want to un-register this app?'),
@@ -105,13 +107,13 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
                 LocalAppStorage().removeUser();
@@ -168,7 +170,7 @@ class _SettingsPageState extends State<SettingsPage> {
     } catch (e) {
       // Handle errors
       print('Error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Authentication failed. Please try again.'),
       ));
     }
@@ -179,7 +181,7 @@ class _SettingsPageState extends State<SettingsPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Contact Us'),
+          title: const Text('Contact Us'),
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -188,29 +190,29 @@ class _SettingsPageState extends State<SettingsPage> {
                 onTap: () {
                   _launchURL('https://goo.gl/maps/93K7ciPPH5Sxtzus5');
                 },
-                child: Text(
+                child: const Text(
                     'Navigate:  Sourav Ganugly Avenue, Bablatala, PO R-Gopalpur, Rajarhat , Kolkata, 700136'),
               ),
-              SizedBox(height: 10.0),
+              const SizedBox(height: 10.0),
               GestureDetector(
                 onTap: () {
                   _launchURL('tel:+917003452046');
                 },
-                child: Text('Quick Contact +91-7003452046'),
+                child: const Text('Quick Contact +91-7003452046'),
               ),
-              SizedBox(height: 10.0),
+              const SizedBox(height: 10.0),
               GestureDetector(
                 onTap: () {
                   _launchURL('mailto:contact@rohinicomplex.in');
                 },
-                child: Text('Message @ contact@rohinicomplex.in'),
+                child: const Text('Message @ contact@rohinicomplex.in'),
               ),
-              SizedBox(height: 10.0),
+              const SizedBox(height: 10.0),
               GestureDetector(
                 onTap: () {
                   _launchURL('https://wa.me/+917003452046');
                 },
-                child: Text('Whatsapp @ 917003452046'),
+                child: const Text('Whatsapp @ 917003452046'),
               ),
             ],
           ),
@@ -219,7 +221,7 @@ class _SettingsPageState extends State<SettingsPage> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Close'),
+              child: const Text('Close'),
             ),
           ],
         );

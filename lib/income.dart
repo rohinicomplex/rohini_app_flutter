@@ -8,6 +8,8 @@ class Customer {
 }
 
 class CustomerSelectionScreen extends StatefulWidget {
+  const CustomerSelectionScreen({super.key});
+
   @override
   _CustomerSelectionScreenState createState() =>
       _CustomerSelectionScreenState();
@@ -45,7 +47,7 @@ class _CustomerSelectionScreenState extends State<CustomerSelectionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Customer Selection'),
+        title: const Text('Customer Selection'),
       ),
       body: Column(
         children: [
@@ -53,7 +55,7 @@ class _CustomerSelectionScreenState extends State<CustomerSelectionScreen> {
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               onChanged: (value) => filterCustomers(value),
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Search Customer',
                 hintText: 'Enter customer name',
                 prefixIcon: Icon(Icons.search),
@@ -103,6 +105,8 @@ class Charge {
 }
 
 class ChargesSelectionScreen extends StatefulWidget {
+  const ChargesSelectionScreen({super.key});
+
   @override
   _ChargesSelectionScreenState createState() => _ChargesSelectionScreenState();
 }
@@ -163,7 +167,7 @@ class _ChargesSelectionScreenState extends State<ChargesSelectionScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Close'),
+              child: const Text('Close'),
             ),
           ],
         );
@@ -175,7 +179,7 @@ class _ChargesSelectionScreenState extends State<ChargesSelectionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Charges Selection'),
+        title: const Text('Charges Selection'),
       ),
       body: ListView.builder(
         itemCount: charges.length,
@@ -225,7 +229,7 @@ class _ChargesSelectionScreenState extends State<ChargesSelectionScreen> {
           Navigator.pushNamed(context, '/payment_details',
               arguments: selectedCharges);
         },
-        child: Icon(Icons.arrow_forward),
+        child: const Icon(Icons.arrow_forward),
       ),
     );
   }
@@ -234,7 +238,7 @@ class _ChargesSelectionScreenState extends State<ChargesSelectionScreen> {
 class PaymentDetailsScreen extends StatefulWidget {
   final List<int> selectedCharges;
 
-  PaymentDetailsScreen({required this.selectedCharges});
+  const PaymentDetailsScreen({super.key, required this.selectedCharges});
 
   @override
   _PaymentDetailsScreenState createState() => _PaymentDetailsScreenState();
@@ -285,36 +289,36 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Payment Details'),
+        title: const Text('Payment Details'),
         actions: [
           IconButton(
             onPressed: () {
               _showBankTransactions(context);
             },
-            icon: Icon(Icons.import_export),
+            icon: const Icon(Icons.import_export),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextFormField(
-              decoration: InputDecoration(labelText: 'Bill Number'),
+              decoration: const InputDecoration(labelText: 'Bill Number'),
               onChanged: (value) {
                 setState(() {
                   billNumber = value;
                 });
               },
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             InkWell(
               onTap: () {
                 _selectDate(context);
               },
               child: InputDecorator(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Date',
                   border: OutlineInputBorder(),
                 ),
@@ -323,14 +327,14 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                   children: [
                     Text(
                         '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}'),
-                    Icon(Icons.calendar_today),
+                    const Icon(Icons.calendar_today),
                   ],
                 ),
               ),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             TextFormField(
-              decoration: InputDecoration(labelText: 'Amount'),
+              decoration: const InputDecoration(labelText: 'Amount'),
               keyboardType: TextInputType.number,
               onChanged: (value) {
                 setState(() {
@@ -338,7 +342,7 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                 });
               },
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             DropdownButtonFormField<String>(
               value: paymentMode,
               onChanged: (value) {
@@ -353,21 +357,21 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                   child: Text(value),
                 );
               }).toList(),
-              decoration: InputDecoration(labelText: 'Payment Mode'),
+              decoration: const InputDecoration(labelText: 'Payment Mode'),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             TextFormField(
-              decoration: InputDecoration(labelText: 'Reference'),
+              decoration: const InputDecoration(labelText: 'Reference'),
               onChanged: (value) {
                 setState(() {
                   reference = value;
                 });
               },
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             Row(
               children: [
-                Text('Apply Discount'),
+                const Text('Apply Discount'),
                 Switch(
                   value: applyDiscount,
                   onChanged: _applyDiscount,
@@ -376,7 +380,7 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
             ),
             if (applyDiscount) ...[
               TextFormField(
-                decoration: InputDecoration(labelText: 'Discount Reason'),
+                decoration: const InputDecoration(labelText: 'Discount Reason'),
                 onChanged: (value) {
                   setState(() {
                     discountReason = value;
@@ -384,7 +388,7 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                 },
               ),
             ],
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -392,29 +396,29 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                   onPressed: () {
                     _distributePayment('Distribute top to down');
                   },
-                  icon: Icon(Icons.arrow_downward),
+                  icon: const Icon(Icons.arrow_downward),
                 ),
                 IconButton(
                   onPressed: () {
                     _distributePayment('Distribute evenly');
                   },
-                  icon: Icon(Icons.compare_arrows),
+                  icon: const Icon(Icons.compare_arrows),
                 ),
                 IconButton(
                   onPressed: () {
                     _distributePayment('Distribute proportionately');
                   },
-                  icon: Icon(Icons.format_align_center),
+                  icon: const Icon(Icons.format_align_center),
                 ),
                 IconButton(
                   onPressed: () {
                     _distributePayment('Discount remaining Amount');
                   },
-                  icon: Icon(Icons.money_off),
+                  icon: const Icon(Icons.money_off),
                 ),
               ],
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             DataTable(
               columns: const <DataColumn>[
                 DataColumn(label: Text('Charge ID')),
@@ -428,13 +432,13 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                         cells: <DataCell>[
                           DataCell(Text('$chargeId')),
                           DataCell(Text('Charge Details $chargeId')),
-                          DataCell(Text('\$50.00')), // Example data
+                          const DataCell(Text('\$50.00')), // Example data
                           DataCell(TextField(
                             onChanged: (value) {
                               // Handle amount to pay changes
                             },
                             keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               hintText: 'Enter amount',
                             ),
                           )),
@@ -443,7 +447,7 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                               // Handle discount amount changes
                             },
                             keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               hintText: 'Enter discount',
                             ),
                           )),
@@ -451,12 +455,12 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
                       ))
                   .toList(),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/payment_distribution');
               },
-              child: Text('Submit'),
+              child: const Text('Submit'),
             ),
           ],
         ),
@@ -466,18 +470,20 @@ class _PaymentDetailsScreenState extends State<PaymentDetailsScreen> {
 }
 
 class PaymentDistributionScreen extends StatelessWidget {
+  const PaymentDistributionScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Payment Distribution'),
+        title: const Text('Payment Distribution'),
       ),
       body: Center(
         child: ElevatedButton(
           onPressed: () {
             Navigator.pushNamed(context, '/summary');
           },
-          child: Text('Distribute Payment'),
+          child: const Text('Distribute Payment'),
         ),
       ),
     );
@@ -485,13 +491,15 @@ class PaymentDistributionScreen extends StatelessWidget {
 }
 
 class SummaryScreen extends StatelessWidget {
+  const SummaryScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Payment Summary'),
+        title: const Text('Payment Summary'),
       ),
-      body: Center(
+      body: const Center(
         child: Text('Summary Screen'),
       ),
     );

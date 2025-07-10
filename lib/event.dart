@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class CommunityHallBookingScreen extends StatefulWidget {
+  const CommunityHallBookingScreen({super.key});
+
   @override
   _CommunityHallBookingScreenState createState() =>
       _CommunityHallBookingScreenState();
@@ -10,11 +12,11 @@ class CommunityHallBookingScreen extends StatefulWidget {
 class _CommunityHallBookingScreenState
     extends State<CommunityHallBookingScreen> {
   List<DateTime> _selectedDates = [];
-  TextEditingController _eventNameController = TextEditingController();
-  List<Map<String, dynamic>> _bookedEvents = [
+  final TextEditingController _eventNameController = TextEditingController();
+  final List<Map<String, dynamic>> _bookedEvents = [
     {'date': DateTime.now(), 'eventName': 'Event 1'},
-    {'date': DateTime.now().add(Duration(days: 1)), 'eventName': 'Event 2'},
-    {'date': DateTime.now().add(Duration(days: 2)), 'eventName': 'Event 3'}
+    {'date': DateTime.now().add(const Duration(days: 1)), 'eventName': 'Event 2'},
+    {'date': DateTime.now().add(const Duration(days: 2)), 'eventName': 'Event 3'}
   ];
 
   @override

@@ -6,6 +6,8 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class NoticeScreen extends StatefulWidget {
+  const NoticeScreen({super.key});
+
   @override
   _NoticeScreenState createState() => _NoticeScreenState();
 }
@@ -27,7 +29,7 @@ class _NoticeScreenState extends State<NoticeScreen> {
     String token = await LocalAppStorage().getToken();
     Map<String, String> requestHeaders = {'token': token, 'usertk': user};
 
-    var map = new Map<String, String>();
+    var map = <String, String>{};
     map['userName'] = user;
     final response = await http.post(
       Uri.parse('https://rohinicomplex.in/service/getNotice.php'),
@@ -46,7 +48,7 @@ class _NoticeScreenState extends State<NoticeScreen> {
         final String base64Content = jsonResponse[0]['content'];
         setState(() {
           _htmlContent =
-              '<html><body><h1>' + base64Content + '</h1></body></html>';
+              '<html><body><h1>$base64Content</h1></body></html>';
         });
         final String decodedContent = utf8.decode(base64Decode(base64Content));
         setState(() {
@@ -70,7 +72,7 @@ class _NoticeScreenState extends State<NoticeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Notice Board'),
+        title: const Text('Notice Board'),
       ),
       body: WebView(
         initialUrl: Uri.dataFromString(

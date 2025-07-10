@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'storage.dart';
 
 class LedgerScreen extends StatefulWidget {
+  const LedgerScreen({super.key});
+
   @override
   _LedgerScreenState createState() => _LedgerScreenState();
 }
@@ -54,12 +56,12 @@ class _LedgerScreenState extends State<LedgerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Ledger'),
+        title: const Text('Ledger'),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -97,19 +99,19 @@ class _LedgerScreenState extends State<LedgerScreen> {
               ),
               ElevatedButton(
                 onPressed: _showLedger,
-                child: Text('Show'),
+                child: const Text('Show'),
               ),
             ],
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           DefaultTabController(
             length: 3,
             child: Column(
               children: [
                 TabBar(
                   labelColor: Theme.of(context).primaryColor,
-                  labelPadding: EdgeInsets.symmetric(horizontal: 16.0),
-                  tabs: [
+                  labelPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  tabs: const [
                     Tab(text: 'Income'),
                     Tab(text: 'Expense'),
                     Tab(text: 'Discount'),
@@ -144,7 +146,7 @@ class _LedgerScreenState extends State<LedgerScreen> {
     token = await LocalAppStorage().getToken();
     Map<String, String> requestHeaders = {'token': token, 'usertk': user};
 
-    var map = new Map<String, String>();
+    var map = <String, String>{};
     map['FY'] = _selectedFinancialYear;
     map['REPORTFOR'] = _selectedPeriod;
     map['PendingTxn'] = 'false';
@@ -215,26 +217,26 @@ class _LedgerScreenState extends State<LedgerScreen> {
         sortAscending: _sortAscending,
         columns: [
           DataColumn(
-            label: Text('Description'),
+            label: const Text('Description'),
             onSort: (columnIndex, ascending) {
               setState(() {
                 _sortAscending = ascending;
                 rows.sort((a, b) {
                   if (ascending) {
-                    return a.cells[columnIndex].child!
+                    return a.cells[columnIndex].child
                         .toString()
-                        .compareTo(b.cells[columnIndex].child!.toString());
+                        .compareTo(b.cells[columnIndex].child.toString());
                   } else {
-                    return b.cells[columnIndex].child!
+                    return b.cells[columnIndex].child
                         .toString()
-                        .compareTo(a.cells[columnIndex].child!.toString());
+                        .compareTo(a.cells[columnIndex].child.toString());
                   }
                 });
               });
             },
           ),
           DataColumn(
-            label: Text('Amount'),
+            label: const Text('Amount'),
             numeric: true,
             onSort: (columnIndex, ascending) {
               setState(() {
@@ -256,7 +258,7 @@ class _LedgerScreenState extends State<LedgerScreen> {
   }
 
   int _getAmount(DataRow row) {
-    final amountText = row.cells[1].child!.toString();
+    final amountText = row.cells[1].child.toString();
     return int.parse(amountText.replaceAll(RegExp(r'\D'), ''));
   }
 
@@ -270,7 +272,7 @@ class _LedgerScreenState extends State<LedgerScreen> {
     _selectedFinancialYear = y.toString();
     //'' + y.toString() + '-' + (y + 1 - 2000).toString();
     while (y > 2018) {
-      fys.add('' + y.toString() + '-' + (y + 1 - 2000).toString());
+      fys.add('$y-${y + 1 - 2000}');
       y--;
     }
     //_selectedFinancialYear = '' + y.toString() + '-' + (y - 2000).toString();

@@ -5,6 +5,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class OTPScreen extends StatefulWidget {
+  const OTPScreen({super.key});
+
   @override
   _OTPScreenState createState() => _OTPScreenState();
 }
@@ -36,7 +38,7 @@ class _OTPScreenState extends State<OTPScreen> {
     // Here you can implement the logic to send OTP to the provided email or phone number
     // For demo purposes, let's print the email or phone number
     try {
-      var map = new Map<String, String>();
+      var map = <String, String>{};
       map["email"] = emailOrPhoneNumber;
       final response = await http.post(
         Uri.parse("https://rohinicomplex.in/service/getOTP.php"),
@@ -70,7 +72,7 @@ class _OTPScreenState extends State<OTPScreen> {
 
   // Function to start the resend timer
   void startResendTimer() {
-    _resendTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_resendTimeout == 0) {
         setState(() {
           _isResendDisabled = false;
@@ -107,7 +109,7 @@ class _OTPScreenState extends State<OTPScreen> {
     // Here you can implement the logic to send OTP to the provided email or phone number
     // For demo purposes, let's print the email or phone number
     try {
-      var map = new Map<String, String>();
+      var map = <String, String>{};
       map["email"] = _em;
       map["otp"] = enteredOTP;
       map["uname"] = _usr;
@@ -144,7 +146,7 @@ class _OTPScreenState extends State<OTPScreen> {
   void fetchPermissions(String user, String token) async {
     Map<String, String> requestHeaders = {'token': token, 'usertk': user};
 
-    var map = new Map<String, String>();
+    var map = <String, String>{};
     map['username'] = user;
 
     try {
@@ -186,7 +188,9 @@ class _OTPScreenState extends State<OTPScreen> {
       _isResendDisabled = false;
       _isVerified = false;
       emailOrPhoneNumberController.clear();
-      otpControllers.forEach((controller) => controller.clear());
+      for (var controller in otpControllers) {
+        controller.clear();
+      }
       _text = "";
       _col = Colors.green;
     });
@@ -196,39 +200,39 @@ class _OTPScreenState extends State<OTPScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('OTP Verification'),
+        title: const Text('OTP Verification'),
       ),
       body: Center(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               if (true) ...[
                 Text(_text, style: TextStyle(color: _col)),
-                SizedBox(height: 20.0),
+                const SizedBox(height: 20.0),
               ],
               if (!_showOTPField) ...[
                 TextField(
                   controller: emailOrPhoneNumberController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Email or Phone Number',
                     hintText: 'Enter your email or phone number',
                   ),
                 ),
-                SizedBox(height: 20.0),
+                const SizedBox(height: 20.0),
                 ElevatedButton(
                   onPressed: sendOTP,
-                  child: Text('Send OTP'),
+                  child: const Text('Send OTP'),
                 ),
               ],
               if (_showOTPField) ...[
-                Text(
+                const Text(
                   'Enter OTP',
                   style: TextStyle(fontSize: 20.0),
                 ),
-                SizedBox(height: 10.0),
+                const SizedBox(height: 10.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(
@@ -246,7 +250,7 @@ class _OTPScreenState extends State<OTPScreen> {
                             FocusScope.of(context).nextFocus();
                           }
                         },
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           counterText: '',
                           border: OutlineInputBorder(),
                         ),
@@ -254,35 +258,35 @@ class _OTPScreenState extends State<OTPScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 20.0),
+                const SizedBox(height: 20.0),
                 ElevatedButton(
                   onPressed: verifyOTP,
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Theme.of(context).colorScheme.secondary,
-                    textStyle: TextStyle(fontSize: 18.0),
+                    textStyle: const TextStyle(fontSize: 18.0),
                   ),
-                  child: Text('Verify OTP'),
+                  child: const Text('Verify OTP'),
                 ),
-                SizedBox(height: 20.0),
+                const SizedBox(height: 20.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       'Resend OTP in $_resendTimeout seconds',
-                      style: TextStyle(fontSize: 16.0),
+                      style: const TextStyle(fontSize: 16.0),
                     ),
-                    SizedBox(width: 10.0),
+                    const SizedBox(width: 10.0),
                     TextButton(
                       onPressed:
                           _isResendDisabled ? null : handleResendButtonPress,
-                      child: Text('Resend'),
+                      child: const Text('Resend'),
                     ),
                   ],
                 ),
-                SizedBox(height: 20.0),
+                const SizedBox(height: 20.0),
                 TextButton(
                   onPressed: resetOTPEntry,
-                  child: Text('Change Email/Phone Number'),
+                  child: const Text('Change Email/Phone Number'),
                 ),
               ],
             ],

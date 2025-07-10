@@ -30,6 +30,8 @@ class ActivityItemDTO {
 }
 
 class ActivityApproval extends StatefulWidget {
+  const ActivityApproval({super.key});
+
   @override
   _ActivityApprovalState createState() => _ActivityApprovalState();
 }
@@ -49,7 +51,7 @@ class _ActivityApprovalState extends State<ActivityApproval> {
     String token = await LocalAppStorage().getToken();
     Map<String, String> requestHeaders = {'token': token, 'usertk': user};
 
-    var map = new Map<String, String>();
+    var map = <String, String>{};
     map['activityid'] = id;
     map['comments'] = comm;
     map['approvalid'] = appr;
@@ -96,7 +98,7 @@ class _ActivityApprovalState extends State<ActivityApproval> {
     String token = await LocalAppStorage().getToken();
     Map<String, String> requestHeaders = {'token': token, 'usertk': user};
 
-    var map = new Map<String, String>();
+    var map = <String, String>{};
     map['userid'] = user;
     map['ResultType'] = '1';
     map['StatusType'] = '1';
@@ -110,7 +112,7 @@ class _ActivityApprovalState extends State<ActivityApproval> {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        if (data.length > 0) {
+        if (data.isNotEmpty) {
           l = data.map((json) => ActivityItemDTO.fromJson(json)).toList();
         } else {
           _showMessage(context, 'Enjoy! Nothing to take action');
@@ -131,12 +133,12 @@ class _ActivityApprovalState extends State<ActivityApproval> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Activity Approval'),
+        title: const Text('Activity Approval'),
       ),
       body: _activities.isEmpty
-          ? Center(
+          ? const Center(
               child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(8.0),
               child: Text(
                   "Looks like you're free to enjoy your coffee break - no approvals waiting to rain on your parade! ☕️"),
             ))
@@ -145,22 +147,23 @@ class _ActivityApprovalState extends State<ActivityApproval> {
               itemBuilder: (context, index) {
                 var item = _activities[index];
                 return Card(
-                  margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  margin: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 16.0),
                   child: Padding(
-                    padding: EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Activity #${item.activityId}'),
-                        SizedBox(height: 8.0),
+                        const SizedBox(height: 8.0),
                         Text('Create Date: ${item.createDate.toString()}'),
-                        SizedBox(height: 8.0),
+                        const SizedBox(height: 8.0),
                         Text('Subject: ${item.subject}'),
-                        SizedBox(height: 8.0),
+                        const SizedBox(height: 8.0),
                         Text('Type: ${item.type}'),
-                        SizedBox(height: 8.0),
+                        const SizedBox(height: 8.0),
                         Text('Description: ${item.description}'),
-                        SizedBox(height: 16.0),
+                        const SizedBox(height: 16.0),
                         Row(
                           children: [
                             OutlinedButton(
@@ -176,9 +179,9 @@ class _ActivityApprovalState extends State<ActivityApproval> {
                               style: OutlinedButton.styleFrom(
                                   foregroundColor:
                                       Theme.of(context).primaryColor),
-                              child: Text('Details'),
+                              child: const Text('Details'),
                             ),
-                            Spacer(),
+                            const Spacer(),
                             ElevatedButton(
                               onPressed: () {
                                 _showApproveConfirmationDialog(item);
@@ -186,9 +189,9 @@ class _ActivityApprovalState extends State<ActivityApproval> {
                               style: ElevatedButton.styleFrom(
                                 foregroundColor: Theme.of(context).primaryColor,
                               ),
-                              child: Text('Approve'),
+                              child: const Text('Approve'),
                             ),
-                            SizedBox(width: 8.0),
+                            const SizedBox(width: 8.0),
                             ElevatedButton(
                               onPressed: () {
                                 _showRejectConfirmationDialog(item);
@@ -196,7 +199,7 @@ class _ActivityApprovalState extends State<ActivityApproval> {
                               style: ElevatedButton.styleFrom(
                                 foregroundColor: Colors.red,
                               ),
-                              child: Text('Reject'),
+                              child: const Text('Reject'),
                             ),
                           ],
                         ),
@@ -215,26 +218,26 @@ class _ActivityApprovalState extends State<ActivityApproval> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirm Rejection'),
+          title: const Text('Confirm Rejection'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Are you sure you want to reject this activity?'),
+              const Text('Are you sure you want to reject this activity?'),
               TextField(
                 controller: commentController,
-                decoration: InputDecoration(labelText: 'Comments'),
+                decoration: const InputDecoration(labelText: 'Comments'),
               ),
             ],
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 // Implement your reject logic here
                 String comments = commentController.text;
@@ -255,17 +258,18 @@ class _ActivityApprovalState extends State<ActivityApproval> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirm Approval'),
-          content: Text('Are you sure you want to approve this activity?'),
+          title: const Text('Confirm Approval'),
+          content:
+              const Text('Are you sure you want to approve this activity?'),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 // Implement your approve logic here
 
@@ -284,16 +288,16 @@ class _ActivityApprovalState extends State<ActivityApproval> {
 class ActivityDetails extends StatelessWidget {
   final ActivityItemDTO item;
 
-  ActivityDetails({required this.item});
+  const ActivityDetails({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Activity Details'),
+        title: const Text('Activity Details'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

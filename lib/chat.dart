@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class GroupChatScreen extends StatefulWidget {
+  const GroupChatScreen({super.key});
+
   @override
   _GroupChatScreenState createState() => _GroupChatScreenState();
 }
@@ -16,7 +18,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Group Chat'),
+        title: const Text('Group Chat'),
       ),
       body: Column(
         children: [
@@ -40,7 +42,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
         'User 1'; // Change 'User 1' to the logged in user's name
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
       child: Row(
         mainAxisAlignment:
             isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
@@ -48,7 +50,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
         children: [
           if (!isMyMessage)
             Container(
-              margin: EdgeInsets.only(right: 8.0),
+              margin: const EdgeInsets.only(right: 8.0),
               child: Text(
                 message.sender,
                 style: TextStyle(
@@ -58,9 +60,9 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
               ),
             ),
           Container(
-            padding: EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(8.0),
             decoration: BoxDecoration(
-              color: isMyMessage ? Color(0xffcbe5cc) : Color(0xccccccccc),
+              color: isMyMessage ? const Color(0xffcbe5cc) : const Color(0xccccccccc),
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: Text(
@@ -76,21 +78,21 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
 
   Widget _buildMessageInput() {
     return Container(
-      padding: EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(8.0),
       child: Row(
         children: [
           Expanded(
             child: TextField(
               controller: _messageController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Type a message...',
                 border: OutlineInputBorder(),
               ),
             ),
           ),
-          SizedBox(width: 8.0),
+          const SizedBox(width: 8.0),
           IconButton(
-            icon: Icon(Icons.send),
+            icon: const Icon(Icons.send),
             onPressed: () {
               _sendMessage();
             },

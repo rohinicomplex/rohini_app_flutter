@@ -4,12 +4,14 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
+
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  String _profileImageUrl = 'assets/default_profile_image.jpg';
+  final String _profileImageUrl = 'assets/default_profile_image.jpg';
   List<dynamic> testdata = [];
   String roleNames = '';
   _ProfilePageState() {
@@ -19,10 +21,10 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile'),
+        title: const Text('Profile'),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -39,12 +41,12 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: GestureDetector(
                       onTap: _changeProfileImage,
                       child: Container(
-                        padding: EdgeInsets.all(5.0),
-                        decoration: BoxDecoration(
+                        padding: const EdgeInsets.all(5.0),
+                        decoration: const BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.edit,
                           color: Colors.blue,
                           size: 20.0,
@@ -55,34 +57,34 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               ),
             ),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             // Other profile fields
             _buildField('User ID', testdata[0]['USERNAME']),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             _buildField('First Name', testdata[0]['FNAME']),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             _buildField('Middle Name', testdata[0]['MNAME']),
 
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             _buildField('Last Name', testdata[0]['LNAME']),
             // Add more fields as needed
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             _buildField('Sex', testdata[0]['sex']),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             _buildField('Date of Birth', testdata[0]['DOB']),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             _buildField('Address', testdata[0]['ADDRESS']),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             _buildField('PIN', testdata[0]['PIN']),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             _buildField('Email', testdata[0]['EMAIL']),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             _buildField('Phone', testdata[0]['PHONE']),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             _buildField('Mobile', testdata[0]['MOBILENUMBER']),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             _buildField('Whatsapp', testdata[0]['WANUMBER']),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             _buildField('Role', roleNames),
           ],
         ),
@@ -96,15 +98,15 @@ class _ProfilePageState extends State<ProfilePage> {
       children: [
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 16.0,
           ),
         ),
-        SizedBox(height: 5.0),
+        const SizedBox(height: 5.0),
         Text(
           value,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16.0,
           ),
         ),
@@ -127,8 +129,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
     user = await LocalAppStorage().getUserName();
     token = await LocalAppStorage().getToken();
-    var returnMap = new Map<String, String>();
-    var map = new Map<String, String>();
+    var returnMap = <String, String>{};
+    var map = <String, String>{};
     map['userName'] = user;
 
     Map<String, String> requestHeaders = {'token': token, 'usertk': user};
@@ -148,7 +150,7 @@ class _ProfilePageState extends State<ProfilePage> {
           var roles = data['roles'];
           var roleString = '';
           for (var e in roles) {
-            roleString = roleString + e["ROLENAME"] + ",";
+            roleString = "${roleString + e["ROLENAME"]},";
           }
           roleNames = roleString;
         });
